@@ -114,6 +114,19 @@ If anything surprised you, record it before you finish:
 Then push. The pre-push hook runs `./verify` again. There is no bypass, and
 `--no-verify` is denied.
 
+Draft the pull request body against `.github/PULL_REQUEST_TEMPLATE.md` and open
+it with the tool. `gh pr create` is denied:
+
+```bash
+.claude/tools/pr.py check  --issue <number> --body-file <draft>
+.claude/tools/pr.py create --issue <number> --body-file <draft>
+```
+
+It refuses a body that does not close an open issue, omits a required section,
+leaves any of the issue's scenarios out of the coverage table, cites no evidence
+that the gates ran, or belongs to a tier-3 issue. The gates already proved the
+code works; this proves a human can review the intent without reading the diff.
+
 ---
 
 ## Do not

@@ -34,6 +34,20 @@
       "use_when": "you suspect a script already exists for what you are about to do",
       "replaces": "ls .claude/tools and opening each file to find out what it does",
       "example": ".claude/tools/tool_mapping.py list"
+    },
+    "evals": {
+      "path": "evals/run.py",
+      "summary": "Does each gate say yes and no in the right places",
+      "use_when": "after changing a hook, a registry checker, or the ticket validator",
+      "replaces": "trusting a gate that has never been watched reject anything",
+      "example": "evals/run.py --only test-first"
+    },
+    "pr": {
+      "path": ".claude/tools/pr.py",
+      "summary": "Opens a pull request, or refuses one a human could not review",
+      "use_when": "the last step of /work. `gh pr create` is denied",
+      "replaces": "a reviewer checking by eye that every scenario is covered",
+      "example": ".claude/tools/pr.py check --issue 42 --body-file draft.md"
     }
   }
 }

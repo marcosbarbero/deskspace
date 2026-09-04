@@ -45,10 +45,12 @@ What works today:
 | `.claude/commands/work.md` | `/work gh#42`: issue in, pull request out |
 | `.claude/agents/` | `tech-lead` implements, `reviewer` checks requirements against asserting tests |
 | `.github/ISSUE_TEMPLATE/` | an issue form whose fields a script validates before work starts |
+| `.claude/tools/pr.py` | opens a pull request, or refuses one a human could not review |
+| `evals/` | 21 cases, 12 asserting a refusal, run by `./verify` |
 | `docs/` | PRD, journey, feature UX, 7 ADRs including one rejected and one superseded, 7 lexicon entries |
 
-Still to come: evals for the agents, and a second consumer to make the case for a
-Pact broker.
+Still to come: a second consumer, to make the case for a Pact broker rather than
+a committed pact file.
 
 ## One definition of green
 
@@ -105,6 +107,21 @@ that disagrees with the tree is worse than no map.
 .claude/tools/arch_map.py get booking
 .claude/tools/lexicon.py search checkstyle
 ```
+
+## The gates are tested
+
+A gate that has never been watched reject something is a gate you are trusting on
+faith. `evals/run.py` is 21 cases against the gates themselves, and 12 of them
+assert a **refusal**, because that is the half that stops working in silence.
+
+```bash
+evals/run.py --only test-first
+```
+
+It earns this. Weakening `require_test_first.py` to accept any path containing
+"test", which is the kind of simplification that looks like tidying, fails three
+cases immediately, including the one that says a backend test must not unlock the
+front end.
 
 The lexicon is the only part that makes the repository better over time rather
 than merely keeping it green. Every entry in it cost real time while this was

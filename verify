@@ -41,6 +41,10 @@ spec_is_current() {
 # The registries are what make everything else findable, and they drift in
 # silence: nothing breaks when a map goes stale, somebody just gets sent to the
 # wrong place months later.
+# The gates decide whether a change is done, so they are code with authority,
+# and untested code with authority is the worst kind. Half of these cases
+# assert a refusal, because that is the half that stops working in silence.
+step "evals     every gate refuses what it should"          evals/run.py
 step "registry  every tool is discoverable"                 .claude/tools/tool_mapping.py check
 step "registry  the architecture map matches the tree"      .claude/tools/arch_map.py check
 step "registry  lexicon entries are well formed"            .claude/tools/lexicon.py check
