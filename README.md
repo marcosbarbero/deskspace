@@ -6,11 +6,9 @@
 A desk booking service for a shared workspace: a Spring Boot API and a React
 front end, with **one contract between them** and a delivery harness around both.
 
-The point of this repo is the harness and the seam, not the application.
-[spring-petclinic-ai-ready](https://github.com/marcosbarbero/spring-petclinic-ai-ready)
-demonstrates the same ideas on a single deployable. This one exists for what a
-single deployable cannot show: two codebases that have to agree, and what it
-takes to make an agent safe to point at both.
+The application is deliberately small. What is worth reading is everything around
+it: two codebases that have to agree, gates that decide when a change is done,
+and what it takes to make an agent safe to point at both of them.
 
 ## The contract is a file
 
