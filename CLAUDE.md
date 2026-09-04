@@ -56,12 +56,34 @@ Green means done. There is no second opinion, and CI runs the same script.
 6. **Refuse a ticket rather than guessing.** Missing requirements are a defect in
    the ticket, not something to improvise around.
 
+## Shape
+
+Slices are features. Inside a slice, dependencies point inward:
+
+```
+<slice>/domain/          types and rules, depending on nothing of ours
+        domain/event/    the published language other slices may read
+        application/     use cases, and the ports they declare
+          port/out/      interfaces named for what this slice needs
+        adapter/in/      HTTP and events arrive here and stop here
+        adapter/out/     storage, other slices, the publisher
+```
+
+**Slices talk by events, never by calls.** Booking publishes `DeskBooked` and
+`BookingCancelled`; availability subscribes and keeps its own read model. The
+only thing availability may import from booking is `booking.domain.event`, and
+crossing a slice boundary at all belongs in exactly one adapter class.
+
 ## Conventions
 
-- Java: constructor injection, no field injection. Records for domain types.
-  Wire types carry the `Api` prefix and never leave a controller.
-- Non-determinism is injected: `Clock` and the id supplier are beans. No test
-  reads the wall clock.
-- Every error response is an `ApiProblem`, because the spec promises it. The
-  front end renders the problem title and never invents wording.
+- Constructor injection, no field injection. Records for domain types.
+- An application layer never names an adapter and never imports another slice.
+  If it needs something, it declares a port and an adapter implements it.
+- Wire types carry the `Api` prefix and stop at `adapter/in/web`.
+- Non-determinism is injected: `Clock` and the id supplier are beans. Nothing
+  reads the wall clock, in production or in a test.
+- Events are records in `domain/event`, carrying ids and dates rather than an
+  aggregate. Handlers are idempotent.
+- Every error response is an `ApiProblem`, and each slice translates its own
+  failures. A shared advice class importing every slice creates a cycle.
 - TypeScript: no floating promises, no `any`, generated types are never edited.

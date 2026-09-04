@@ -1,41 +1,62 @@
 {
+  "style": "Ports and adapters within each feature slice; slices talk by events, never by calls.",
+  "layers": {
+    "domain": "Types and rules. Depends on nothing else in this repository.",
+    "application": "Use cases, and the ports they declare. Depends on its own domain and on nothing else.",
+    "adapter/in": "Things that call in: HTTP controllers, event listeners.",
+    "adapter/out": "Things the application calls: storage, other slices, the event publisher."
+  },
   "slices": {
     "desk": {
       "responsibility": "The desks that physically exist. Knows nothing about who booked what.",
       "paths": ["backend/src/main/java/com/marcosbarbero/deskspace/desk"],
-      "owns": ["Desk", "Zone", "DeskCatalog"],
+      "owns": ["Desk", "Zone", "DeskCatalog", "Desks (port)", "InMemoryDesks"],
       "may_depend_on": []
     },
     "booking": {
-      "responsibility": "Booking rules: who may take which desk on which date, and cancellation.",
+      "responsibility": "Who may take which desk on which date, and cancellation. The write side.",
       "paths": ["backend/src/main/java/com/marcosbarbero/deskspace/booking"],
-      "owns": ["Booking", "BookingStatus", "BookingRepository", "BookingService", "BookingController"],
-      "may_depend_on": ["desk"]
+      "owns": ["Booking", "BookDesk", "CancelBooking", "Bookings (port)", "DeskDirectory (port)",
+               "DeskBooked (event)", "BookingCancelled (event)", "BookingController", "CatalogDeskExistence"],
+      "may_depend_on": ["desk", "shared"],
+      "crosses_boundary_in": ["backend/src/main/java/com/marcosbarbero/deskspace/booking/adapter/out/catalog"],
+      "publishes": ["DeskBooked", "BookingCancelled"]
     },
     "availability": {
-      "responsibility": "The only place allowed to know about desks and bookings at once. Answers 'is this desk free'.",
+      "responsibility": "What is free on a date. A read model kept current by booking's events.",
       "paths": ["backend/src/main/java/com/marcosbarbero/deskspace/availability"],
-      "owns": ["AvailabilityController"],
-      "may_depend_on": ["desk", "booking"]
+      "owns": ["DeskAvailability", "DeskSummary", "DesksOnDate", "AvailabilityProjection",
+               "OccupiedDesks (port)", "DeskDirectory (port)", "AvailabilityController",
+               "BookingEventListener", "CatalogDeskSummaries", "InMemoryOccupiedDesks"],
+      "may_depend_on": ["desk", "shared"],
+      "crosses_boundary_in": ["backend/src/main/java/com/marcosbarbero/deskspace/availability/adapter/out/catalog"],
+      "subscribes_to": ["DeskBooked", "BookingCancelled"]
     },
     "shared": {
-      "responsibility": "Cross-cutting configuration only. No domain content, ever.",
+      "responsibility": "The event contract, the sources of non-determinism, and the one error shape. No domain content, and it depends on no slice.",
       "paths": ["backend/src/main/java/com/marcosbarbero/deskspace/shared"],
-      "owns": ["DeterminismConfiguration", "ProblemAdvice"],
-      "may_depend_on": ["desk", "booking"]
+      "owns": ["DomainEvent", "DomainEvents (port)", "SpringDomainEvents", "DeterminismConfiguration",
+               "Problems", "ValidationProblemAdvice"],
+      "may_depend_on": []
     },
     "frontend-booking": {
-      "responsibility": "The desk board: the one screen. States are specified in docs/ux/desk-board.md.",
+      "responsibility": "The desk board. Every state is specified in docs/ux/desk-board.md.",
       "paths": ["frontend/src/features/booking"],
       "owns": ["DeskBoard", "useDesks"],
       "may_depend_on": ["frontend-api"]
     },
     "frontend-api": {
-      "responsibility": "The generated client and the types that come from the contract. Nothing hand-written.",
+      "responsibility": "The generated client and the types from the contract. Nothing hand-written.",
       "paths": ["frontend/src/api"],
       "owns": ["client", "schema"],
       "may_depend_on": []
     }
   },
-  "enforced_by": "backend/src/test/java/com/marcosbarbero/deskspace/ArchitectureRulesTest.java"
+  "rules": [
+    "availability may depend on booking.domain.event and on nothing else in booking",
+    "booking must never depend on availability: the write side does not know a read model exists",
+    "an application layer never names an adapter, and never crosses a slice boundary",
+    "generated Api* wire types stop at adapter/in/web"
+  ],
+  "enforced_by": "backend/src/test/java/com/marcosbarbero/deskspace/architecture/ArchitectureRulesTest.java"
 }

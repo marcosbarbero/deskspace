@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from functools import lru_cache
@@ -28,6 +29,17 @@ def target_path(data: dict | None = None) -> str:
 
 @lru_cache(maxsize=1)
 def repo_root() -> Path | None:
+    """The repository the hook is reasoning about.
+
+    Overridable through HARNESS_REPO_ROOT so the eval suite can point a hook at a
+    scratch repository whose contents it controls. Without that, a hook that
+    answers from the working tree gives a different answer depending on what the
+    developer happens to have uncommitted, and an eval that depends on the
+    developer's working tree is not an eval.
+    """
+    override = os.environ.get("HARNESS_REPO_ROOT")
+    if override:
+        return Path(override)
     out = git("rev-parse", "--show-toplevel", cwd=Path(__file__).resolve().parent)
     return Path(out.strip()) if out.strip() else None
 

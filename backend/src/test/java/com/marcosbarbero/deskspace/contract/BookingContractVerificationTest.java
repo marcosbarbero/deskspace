@@ -2,7 +2,6 @@ package com.marcosbarbero.deskspace.contract;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.UUID;
 
 import au.com.dius.pact.provider.junit5.HttpTestTarget;
@@ -11,9 +10,10 @@ import au.com.dius.pact.provider.junit5.PactVerificationInvocationContextProvide
 import au.com.dius.pact.provider.junitsupport.Provider;
 import au.com.dius.pact.provider.junitsupport.State;
 import au.com.dius.pact.provider.junitsupport.loader.PactFolder;
-import com.marcosbarbero.deskspace.booking.Booking;
-import com.marcosbarbero.deskspace.booking.BookingRepository;
-import com.marcosbarbero.deskspace.booking.BookingStatus;
+import com.marcosbarbero.deskspace.availability.application.port.out.OccupiedDesks;
+import com.marcosbarbero.deskspace.booking.application.BookDesk;
+import com.marcosbarbero.deskspace.booking.application.port.out.Bookings;
+import com.marcosbarbero.deskspace.support.Fixtures;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestTemplate;
@@ -30,35 +30,36 @@ import org.springframework.context.annotation.Primary;
 /**
  * Verifies the pact the browser client published against this service.
  *
- * The OpenAPI spec says what this API can do. The pact says what one consumer actually
- * depends on, which is a much smaller set and the one that must keep working. Removing a
- * field nobody reads is safe; removing a field named in a pact fails here, before it
- * fails in someone's browser.
+ * The spec says what this API may do. The pact says what one consumer depends on, which
+ * is smaller and stricter. Removing a field nobody reads is safe; changing a status named
+ * in a pact fails here rather than in someone's browser.
+ *
+ * Provider states set up through the real use case, so the read model is populated by the
+ * same event path production uses. A state that reached into the projection directly
+ * would verify a system nobody runs.
  */
 @Provider("deskspace-backend")
 @PactFolder("../pacts")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(BookingContractVerificationTest.FixedClock.class)
+@Import(BookingContractVerificationTest.ContractClock.class)
 class BookingContractVerificationTest {
 
 	/**
-	 * The pact names a specific date. With a real clock that date moves into the past and
-	 * the service starts refusing it, so the contract would rot on a calendar rather than
-	 * on a change anybody made. See ADR 0002 on deterministic time.
+	 * The pact names a date. With a real clock that date drifts into the past and the
+	 * service starts refusing it, so the contract would rot on a calendar rather than on
+	 * a change somebody made, and a red build nobody caused is the worst kind.
 	 */
 	static final LocalDate CONTRACT_DATE = LocalDate.of(2026, 3, 2);
 
 	private static final UUID DESK_A01 = UUID.fromString("11111111-0000-0000-0000-000000000001");
 
 	@TestConfiguration
-	static class FixedClock {
+	static class ContractClock {
 
-		// A different bean name, marked primary: replacing the definition outright
-		// would need bean overriding enabled, which hides real duplicate-bean bugs.
 		@Bean
 		@Primary
 		Clock contractClock() {
-			return Clock.fixed(CONTRACT_DATE.atStartOfDay(ZoneOffset.UTC).toInstant(), ZoneOffset.UTC);
+			return Fixtures.clockAt(CONTRACT_DATE);
 		}
 
 	}
@@ -67,29 +68,35 @@ class BookingContractVerificationTest {
 	private int port;
 
 	@Autowired
-	private BookingRepository bookings;
+	private Bookings bookings;
+
+	@Autowired
+	private OccupiedDesks occupied;
+
+	@Autowired
+	private BookDesk bookDesk;
 
 	@BeforeEach
 	void target(PactVerificationContext context) {
-		bookings.deleteAll();
+		this.bookings.deleteAll();
+		this.occupied.clear();
 		context.setTarget(new HttpTestTarget("localhost", this.port));
+	}
+
+	@State("desk A-01 exists and is free on 2026-03-02")
+	void deskIsFree() {
+		// deleteAll and clear in @BeforeEach already leave it free.
+	}
+
+	@State("desk A-01 is already booked on 2026-03-02")
+	void deskIsTaken() {
+		this.bookDesk.book(DESK_A01, CONTRACT_DATE, "grace@example.com");
 	}
 
 	@TestTemplate
 	@ExtendWith(PactVerificationInvocationContextProvider.class)
 	void verifiesTheConsumerContract(PactVerificationContext context) {
 		context.verifyInteraction();
-	}
-
-	@State("desk A-01 exists and is free on 2026-03-02")
-	void deskIsFree() {
-		// The catalogue is fixed and nothing is booked: deleteAll ran in @BeforeEach.
-	}
-
-	@State("desk A-01 is already booked on 2026-03-02")
-	void deskIsTaken() {
-		bookings.save(new Booking(UUID.fromString("22222222-0000-0000-0000-000000000001"), DESK_A01, CONTRACT_DATE,
-				"grace@example.com", BookingStatus.CONFIRMED));
 	}
 
 }
