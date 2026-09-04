@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.4.1</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.marcosbarbero.deskspace</groupId>
+  <artifactId>deskspace-backend</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <name>deskspace-backend</name>
+  <description>Desk booking API, generated from ../api/openapi.yaml</description>
+
+  <properties>
+    <java.version>21</java.version>
+    <openapi.spec>${project.basedir}/../api/openapi.yaml</openapi.spec>
+    <openapi-generator.version>7.10.0</openapi-generator.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- Required by code the generator emits. -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>2.2.25</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openapitools</groupId>
+      <artifactId>jackson-databind-nullable</artifactId>
+      <version>0.2.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- Package boundaries as a failing test rather than as a paragraph. -->
+    <dependency>
+      <groupId>com.tngtech.archunit</groupId>
+      <artifactId>archunit-junit5</artifactId>
+      <version>1.3.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <!--
+        The contract is api/openapi.yaml. This generates the request and response
+        types and the controller interfaces from it, into target/, so they are
+        never edited by hand and never drift from the spec.
+      -->
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${openapi-generator.version}</version>
+        <executions>
+          <execution>
+            <id>generate-api</id>
+            <goals><goal>generate</goal></goals>
+            <configuration>
+              <inputSpec>${openapi.spec}</inputSpec>
+              <generatorName>spring</generatorName>
+              <!-- The wire model is not the domain model. The prefix keeps that
+                   visible in every import instead of relying on package order. -->
+              <modelNamePrefix>Api</modelNamePrefix>
+              <apiPackage>com.marcosbarbero.deskspace.api</apiPackage>
+              <modelPackage>com.marcosbarbero.deskspace.api.model</modelPackage>
+              <generateSupportingFiles>false</generateSupportingFiles>
+              <configOptions>
+                <interfaceOnly>true</interfaceOnly>
+                <useSpringBoot3>true</useSpringBoot3>
+                <useTags>true</useTags>
+                <openApiNullable>false</openApiNullable>
+                <skipDefaultInterface>true</skipDefaultInterface>
+                <documentationProvider>none</documentationProvider>
+                <annotationLibrary>none</annotationLibrary>
+                <useJakartaEe>true</useJakartaEe>
+              </configOptions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

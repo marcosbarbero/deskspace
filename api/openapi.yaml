@@ -1,0 +1,184 @@
+openapi: 3.1.0
+info:
+  title: Deskspace API
+  version: 1.0.0
+  description: >-
+    Desk booking for a shared workspace. This file is the contract. The server
+    interfaces and the browser client are both generated from it, so neither
+    side can drift from it without the build noticing.
+servers:
+  - url: http://localhost:8080
+    description: local
+
+tags:
+  - name: desks
+  - name: bookings
+
+paths:
+  /api/desks:
+    get:
+      tags: [desks]
+      operationId: listDesks
+      summary: Desks and whether they are free on a given date
+      parameters:
+        - name: date
+          in: query
+          required: true
+          description: The day to check, in the workspace's local calendar.
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Every desk, with availability for that date.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Desk'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/bookings:
+    post:
+      tags: [bookings]
+      operationId: createBooking
+      summary: Book a desk for a date
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequest'
+      responses:
+        '201':
+          description: The booking was created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: That desk is already booked for that date.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+  /api/bookings/{bookingId}:
+    delete:
+      tags: [bookings]
+      operationId: cancelBooking
+      summary: Cancel a booking
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Cancelled. Cancelling an already cancelled booking is not an error.
+        '404':
+          description: No booking with that id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+
+components:
+  responses:
+    BadRequest:
+      description: The request was not valid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+  schemas:
+    Desk:
+      type: object
+      required: [id, label, zone, available]
+      properties:
+        id:
+          type: string
+          format: uuid
+        label:
+          type: string
+          description: What is printed on the desk, e.g. "A-14".
+          minLength: 1
+          maxLength: 16
+        zone:
+          $ref: '#/components/schemas/Zone'
+        available:
+          type: boolean
+          description: Free on the requested date.
+
+    Zone:
+      type: string
+      enum: [quiet, collaboration, lab]
+
+    BookingRequest:
+      type: object
+      required: [deskId, date, bookedBy]
+      properties:
+        deskId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        bookedBy:
+          type: string
+          description: The email of the person the desk is for.
+          format: email
+          maxLength: 254
+
+    Booking:
+      type: object
+      required: [id, deskId, date, bookedBy, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        deskId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        bookedBy:
+          type: string
+          format: email
+        status:
+          type: string
+          enum: [confirmed, cancelled]
+
+    Problem:
+      type: object
+      description: RFC 9457 problem details, trimmed to what this API uses.
+      required: [title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        errors:
+          type: array
+          description: Field-level validation failures, when there are any.
+          items:
+            type: object
+            required: [field, message]
+            properties:
+              field:
+                type: string
+              message:
+                type: string
