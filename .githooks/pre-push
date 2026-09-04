@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Runs the same ./verify that CI runs, before anything leaves this machine.
+#
+# Enable once per clone:   git config core.hooksPath .githooks
+# Git cannot do this for you: hooks are not cloned.
+#
+# There is no bypass flag. If a gate is wrong, change the gate in a commit
+# somebody can review, rather than stepping around it in a shell nobody sees.
+set -uo pipefail
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+echo "pre-push: running ./verify"
+if ! "$REPO/verify"; then
+  echo
+  echo "pre-push blocked. The same script runs in CI, so pushing would not have helped."
+  exit 1
+fi
+exit 0

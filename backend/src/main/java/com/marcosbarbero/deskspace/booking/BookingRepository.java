@@ -24,10 +24,11 @@ public class BookingRepository {
 	}
 
 	public List<Booking> confirmedOn(LocalDate date) {
-		return bookings.values().stream()
-				.filter(b -> b.status() == BookingStatus.CONFIRMED)
-				.filter(b -> b.date().equals(date))
-				.toList();
+		return bookings.values()
+			.stream()
+			.filter(b -> b.status() == BookingStatus.CONFIRMED)
+			.filter(b -> b.date().equals(date))
+			.toList();
 	}
 
 	public void deleteAll() {
@@ -37,4 +38,5 @@ public class BookingRepository {
 	public boolean isTaken(UUID deskId, LocalDate date) {
 		return confirmedOn(date).stream().anyMatch(b -> b.deskId().equals(deskId));
 	}
+
 }

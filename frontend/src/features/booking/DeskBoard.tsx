@@ -22,7 +22,7 @@ export function DeskBoard({ date, bookedBy }: Props) {
       setConflict(bookingError.title);
       return;
     }
-    await reload();
+    reload();
   }
 
   if (loading) {

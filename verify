@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# The definition of "done" for this repository, in one place.
+#
+# The pre-push hook runs this. CI runs this. You run this. There is exactly one
+# answer to "is it green", because there is exactly one script that decides.
+#
+#   ./verify                 everything except mutation testing
+#   ./verify --mutation      everything
+#
+set -uo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+RED=$'\033[31m'; GRN=$'\033[32m'; DIM=$'\033[2m'; RST=$'\033[0m'
+MUTATION=0
+[ "${1:-}" = "--mutation" ] && MUTATION=1
+[ "${RUN_MUTATION:-0}" = "1" ] && MUTATION=1
+
+failed=0
+step() {
+  local name="$1"; shift
+  printf '%s' "${DIM}-> ${name}${RST}"
+  local out
+  if out=$("$@" 2>&1); then
+    printf '\r%s\n' "${GRN}ok${RST}   ${name}                    "
+  else
+    printf '\r%s\n' "${RED}FAIL${RST} ${name}                    "
+    printf '%s\n' "$out" | tail -25 | sed 's/^/     /'
+    failed=1
+  fi
+}
+
+# The generated client is committed, so it can go stale. Regenerating must
+# produce no diff: a spec change that nobody regenerated is a spec change the
+# front end has not seen.
+spec_is_current() {
+  ( cd frontend && npm run --silent gen ) || return 1
+  git diff --quiet -- frontend/src/api/schema.d.ts
+}
+
+step "backend  format, lint, architecture, tests, coverage" ./backend/mvnw -q -B -f backend/pom.xml verify
+step "frontend types are current with the spec"             spec_is_current
+step "frontend typecheck"                                   npm --prefix frontend run --silent typecheck
+step "frontend lint"                                        npm --prefix frontend run --silent lint
+step "frontend tests, including the consumer contract"      npm --prefix frontend run --silent test
+
+if [ "$MUTATION" = "1" ]; then
+  step "backend  mutation score" ./backend/mvnw -q -B -f backend/pom.xml -Pmutation verify
+else
+  printf '%s\n' "${DIM}skip mutation (./verify --mutation to include it)${RST}"
+fi
+
+if [ "$failed" -ne 0 ]; then
+  printf '\n%s\n' "${RED}not green.${RST}"
+  exit 1
+fi
+printf '\n%s\n' "${GRN}green.${RST}"

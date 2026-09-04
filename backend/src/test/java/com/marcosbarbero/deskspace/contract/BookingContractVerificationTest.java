@@ -30,10 +30,10 @@ import org.springframework.context.annotation.Primary;
 /**
  * Verifies the pact the browser client published against this service.
  *
- * The OpenAPI spec says what this API can do. The pact says what one consumer
- * actually depends on, which is a much smaller set and the one that must keep
- * working. Removing a field nobody reads is safe; removing a field named in a
- * pact fails here, before it fails in someone's browser.
+ * The OpenAPI spec says what this API can do. The pact says what one consumer actually
+ * depends on, which is a much smaller set and the one that must keep working. Removing a
+ * field nobody reads is safe; removing a field named in a pact fails here, before it
+ * fails in someone's browser.
  */
 @Provider("deskspace-backend")
 @PactFolder("../pacts")
@@ -42,10 +42,9 @@ import org.springframework.context.annotation.Primary;
 class BookingContractVerificationTest {
 
 	/**
-	 * The pact names a specific date. With a real clock that date moves into the
-	 * past and the service starts refusing it, so the contract would rot on a
-	 * calendar rather than on a change anybody made. See ADR 0002 on
-	 * deterministic time.
+	 * The pact names a specific date. With a real clock that date moves into the past and
+	 * the service starts refusing it, so the contract would rot on a calendar rather than
+	 * on a change anybody made. See ADR 0002 on deterministic time.
 	 */
 	static final LocalDate CONTRACT_DATE = LocalDate.of(2026, 3, 2);
 
@@ -61,6 +60,7 @@ class BookingContractVerificationTest {
 		Clock contractClock() {
 			return Clock.fixed(CONTRACT_DATE.atStartOfDay(ZoneOffset.UTC).toInstant(), ZoneOffset.UTC);
 		}
+
 	}
 
 	@LocalServerPort
@@ -91,4 +91,5 @@ class BookingContractVerificationTest {
 		bookings.save(new Booking(UUID.fromString("22222222-0000-0000-0000-000000000001"), DESK_A01, CONTRACT_DATE,
 				"grace@example.com", BookingStatus.CONFIRMED));
 	}
+
 }

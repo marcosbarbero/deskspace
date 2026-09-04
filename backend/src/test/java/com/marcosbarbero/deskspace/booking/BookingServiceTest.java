@@ -17,8 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Every date here is fixed and every id is predictable, so a failure means the
- * rule broke rather than that the suite ran across midnight.
+ * Every date here is fixed and every id is predictable, so a failure means the rule broke
+ * rather than that the suite ran across midnight.
  */
 class BookingServiceTest {
 
@@ -57,8 +57,8 @@ class BookingServiceTest {
 	@Test
 	void refuses_a_date_in_the_past() {
 		assertThatThrownBy(() -> service.book(DESK, TODAY.minusDays(1), "ada@example.com"))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContaining("past");
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessageContaining("past");
 	}
 
 	@Test
@@ -66,7 +66,7 @@ class BookingServiceTest {
 		UUID unknown = UUID.fromString("99999999-0000-0000-0000-000000000000");
 
 		assertThatThrownBy(() -> service.book(unknown, TODAY, "ada@example.com"))
-				.isInstanceOf(UnknownDeskException.class);
+			.isInstanceOf(UnknownDeskException.class);
 	}
 
 	@Test
@@ -74,7 +74,7 @@ class BookingServiceTest {
 		service.book(DESK, TODAY, "ada@example.com");
 
 		assertThatThrownBy(() -> service.book(DESK, TODAY, "grace@example.com"))
-				.isInstanceOf(DeskAlreadyBookedException.class);
+			.isInstanceOf(DeskAlreadyBookedException.class);
 	}
 
 	@Test
@@ -107,7 +107,7 @@ class BookingServiceTest {
 	@Test
 	void cancelling_an_unknown_booking_is_an_error() {
 		assertThatThrownBy(() -> service.cancel(UUID.fromString("99999999-0000-0000-0000-000000000000")))
-				.isInstanceOf(UnknownBookingException.class);
+			.isInstanceOf(UnknownBookingException.class);
 	}
 
 	@Test
@@ -119,4 +119,5 @@ class BookingServiceTest {
 
 		assertThat(confirmed).isEmpty();
 	}
+
 }

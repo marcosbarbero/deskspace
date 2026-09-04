@@ -18,9 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Availability is the one place allowed to know about both desks and bookings.
- * Keeping it in its own slice is what lets desk stay ignorant of booking, which
- * is the dependency direction ArchitectureRulesTest enforces.
+ * Availability is the one place allowed to know about both desks and bookings. Keeping it
+ * in its own slice is what lets desk stay ignorant of booking, which is the dependency
+ * direction ArchitectureRulesTest enforces.
  */
 @RestController
 public class AvailabilityController implements DesksApi {
@@ -43,4 +43,5 @@ public class AvailabilityController implements DesksApi {
 	private ApiDesk toApi(Desk desk, boolean available) {
 		return new ApiDesk(desk.id(), desk.label(), ApiZone.fromValue(desk.zone().name().toLowerCase()), available);
 	}
+
 }

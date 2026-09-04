@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * The desks that physically exist. In-memory on purpose: this repository is a
- * demonstration of a delivery harness, and a database would add setup cost
- * without adding anything to what is being demonstrated.
+ * demonstration of a delivery harness, and a database would add setup cost without adding
+ * anything to what is being demonstrated.
  */
 @Component
 public class DeskCatalog {
@@ -32,4 +32,5 @@ public class DeskCatalog {
 	public boolean exists(UUID id) {
 		return byId(id).isPresent();
 	}
+
 }

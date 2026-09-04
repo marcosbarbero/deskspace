@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
  * Every error response in this service is an ApiProblem, because that is what
- * api/openapi.yaml promises. A handler that returned anything else would be a
- * contract violation the browser client could not parse.
+ * api/openapi.yaml promises. A handler that returned anything else would be a contract
+ * violation the browser client could not parse.
  */
 @RestControllerAdvice
 public class ProblemAdvice {
@@ -41,10 +41,12 @@ public class ProblemAdvice {
 	ResponseEntity<ApiProblem> invalidBody(MethodArgumentNotValidException ex) {
 		ApiProblem problem = new ApiProblem("Invalid request", HttpStatus.BAD_REQUEST.value());
 		problem.setDetail("The request body failed validation");
-		List<ApiProblemErrorsInner> errors = ex.getBindingResult().getFieldErrors().stream()
-				.map(fe -> new ApiProblemErrorsInner(fe.getField(),
-						fe.getDefaultMessage() == null ? "is invalid" : fe.getDefaultMessage()))
-				.toList();
+		List<ApiProblemErrorsInner> errors = ex.getBindingResult()
+			.getFieldErrors()
+			.stream()
+			.map(fe -> new ApiProblemErrorsInner(fe.getField(),
+					fe.getDefaultMessage() == null ? "is invalid" : fe.getDefaultMessage()))
+			.toList();
 		problem.setErrors(errors);
 		return ResponseEntity.badRequest().body(problem);
 	}
@@ -54,4 +56,5 @@ public class ProblemAdvice {
 		problem.setDetail(detail);
 		return ResponseEntity.status(status).body(problem);
 	}
+
 }

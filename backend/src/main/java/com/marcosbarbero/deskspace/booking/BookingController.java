@@ -35,4 +35,5 @@ public class BookingController implements BookingsApi {
 		return new ApiBooking(booking.id(), booking.deskId(), booking.date(), booking.bookedBy(),
 				ApiBooking.StatusEnum.fromValue(booking.status().name().toLowerCase()));
 	}
+
 }
