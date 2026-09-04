@@ -10,9 +10,16 @@ import com.marcosbarbero.deskspace.booking.application.port.out.Bookings;
 import com.marcosbarbero.deskspace.booking.domain.Booking;
 import com.marcosbarbero.deskspace.booking.domain.BookingStatus;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+/**
+ * The default adapter: no database, no Docker, a fresh clone goes green.
+ *
+ * Enabled unless the postgres profile is active. See ADR 0005 and ADR 0010.
+ */
 @Component
+@Profile("!postgres")
 public class InMemoryBookings implements Bookings {
 
 	private final Map<UUID, Booking> bookings = new ConcurrentHashMap<>();

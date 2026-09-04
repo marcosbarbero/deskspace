@@ -5,8 +5,10 @@
 # The pre-push hook runs this. CI runs this. You run this. There is exactly one
 # answer to "is it green", because there is exactly one script that decides.
 #
-#   toolbox/verify                 everything except mutation testing
-#   toolbox/verify --mutation      everything
+#   toolbox/verify              everything that needs no Docker
+#   toolbox/verify --mutation   plus the mutation score
+#   toolbox/verify --database   plus the tests against a real Postgres
+#   toolbox/verify --all        everything
 #
 set -uo pipefail
 # Everything below is relative to the repository root, not to toolbox/.
@@ -14,8 +16,16 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 RED=$'\033[31m'; GRN=$'\033[32m'; DIM=$'\033[2m'; RST=$'\033[0m'
 MUTATION=0
-[ "${1:-}" = "--mutation" ] && MUTATION=1
+DATABASE=0
+for arg in "$@"; do
+  case "$arg" in
+    --mutation) MUTATION=1 ;;
+    --database) DATABASE=1 ;;
+    --all) MUTATION=1; DATABASE=1 ;;
+  esac
+done
 [ "${RUN_MUTATION:-0}" = "1" ] && MUTATION=1
+[ "${RUN_DATABASE:-0}" = "1" ] && DATABASE=1
 
 failed=0
 step() {
@@ -74,6 +84,12 @@ step "frontend types are current with the spec"             spec_is_current
 step "frontend typecheck"                                   npm --prefix frontend run --silent typecheck
 step "frontend lint"                                        npm --prefix frontend run --silent lint
 step "frontend tests, including the consumer contract"      npm --prefix frontend run --silent test
+
+if [ "$DATABASE" = "1" ]; then
+  step "backend  against a real Postgres" ./backend/mvnw -q -B -f backend/pom.xml -Pdatabase verify
+else
+  printf '%s\n' "${DIM}skip database (toolbox/verify --database needs Docker)${RST}"
+fi
 
 if [ "$MUTATION" = "1" ]; then
   step "backend  mutation score" ./backend/mvnw -q -B -f backend/pom.xml -Pmutation verify
