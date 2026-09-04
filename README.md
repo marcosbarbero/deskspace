@@ -1,4 +1,7 @@
-# Deskspace — a harnessed full-stack service
+# Deskspace
+
+[![verify](https://github.com/marcosbarbero/deskspace/actions/workflows/verify.yml/badge.svg)](https://github.com/marcosbarbero/deskspace/actions/workflows/verify.yml)
+
 
 A desk booking service for a shared workspace: a Spring Boot API and a React
 front end, with **one contract between them** and a delivery harness around both.
