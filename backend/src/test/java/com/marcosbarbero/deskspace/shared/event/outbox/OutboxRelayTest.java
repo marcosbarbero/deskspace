@@ -1,6 +1,8 @@
 package com.marcosbarbero.deskspace.shared.event.outbox;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -38,7 +40,7 @@ class OutboxRelayTest {
 	void setUp() {
 		this.outbox = new InMemoryOutbox();
 		ApplicationEventPublisher publisher = (event) -> this.published.add((DomainEvent) event);
-		this.relay = new OutboxRelay(this.outbox, publisher, this.json);
+		this.relay = new OutboxRelay(this.outbox, publisher, this.json, Clock.fixed(Instant.EPOCH, ZoneOffset.UTC));
 	}
 
 	private StoredEvent stored(Instant at) {
@@ -116,8 +118,23 @@ class OutboxRelayTest {
 		}
 
 		@Override
-		public void markPublished(UUID id) {
+		public void markPublished(UUID id, Instant at) {
 			this.published.add(id);
+		}
+
+		@Override
+		public Backlog backlog() {
+			List<StoredEvent> waiting = unpublished(Integer.MAX_VALUE);
+			return new Backlog(waiting.size(), waiting.stream().map(StoredEvent::occurredAt).min(Instant::compareTo));
+		}
+
+		@Override
+		public int prunePublishedBefore(Instant cutoff) {
+			List<StoredEvent> gone = this.rows.stream()
+				.filter((row) -> this.published.contains(row.id()) && row.occurredAt().isBefore(cutoff))
+				.toList();
+			this.rows.removeAll(gone);
+			return gone.size();
 		}
 
 	}

@@ -3,8 +3,10 @@ package com.marcosbarbero.deskspace.shared.event.outbox;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Profile;
@@ -50,10 +52,36 @@ public class JdbcOutbox implements Outbox {
 	}
 
 	@Override
-	public void markPublished(UUID id) {
-		this.jdbc.sql("update outbox set published_at = now() where id = :id and published_at is null")
+	public void markPublished(UUID id, Instant at) {
+		this.jdbc.sql("update outbox set published_at = :at where id = :id and published_at is null")
 			.param("id", id)
+			.param("at", Timestamp.from(at))
 			.update();
+	}
+
+	@Override
+	public Backlog backlog() {
+		return this.jdbc.sql("""
+				select count(*) as waiting, min(occurred_at) as oldest
+				from outbox where published_at is null
+				""").query(JdbcOutbox::toBacklog).single();
+	}
+
+	/**
+	 * The `published_at is not null` is what makes this safe. A retention window set to
+	 * zero deletes history; there is no value it could take that would remove an
+	 * undelivered event.
+	 */
+	@Override
+	public int prunePublishedBefore(Instant cutoff) {
+		return this.jdbc.sql("delete from outbox where published_at is not null and published_at < :cutoff")
+			.param("cutoff", Timestamp.from(cutoff))
+			.update();
+	}
+
+	private static Backlog toBacklog(ResultSet row, int rowNumber) throws SQLException {
+		OffsetDateTime oldest = row.getObject("oldest", OffsetDateTime.class);
+		return new Backlog(row.getInt("waiting"), Optional.ofNullable(oldest).map(OffsetDateTime::toInstant));
 	}
 
 	private static StoredEvent toStored(ResultSet row, int rowNumber) throws SQLException {
