@@ -29,19 +29,43 @@ Under construction, in the open. What works today:
 | | |
 |---|---|
 | `api/openapi.yaml` | the contract: desks, bookings, RFC 9457 problems |
-| backend codegen | `openapi-generator` produces interfaces and `Api*` types into `target/` |
+| backend codegen | `openapi-generator` produces controller interfaces and `Api*` types into `target/` |
 | backend slices | `desk`, `booking`, `availability`, `shared` |
 | `ArchitectureRulesTest` | 5 ArchUnit rules: slice isolation, no cycles, no field injection, domain free of wire types |
 | deterministic tests | injected `Clock` and id supplier, so no test depends on the wall clock |
+| frontend codegen | `openapi-typescript` produces `src/api/schema.d.ts` from the same file |
+| frontend feature | the desk board, with every state from `docs/ux/desk-board.md` |
+| documentation | PRD, journey, feature UX, and six ADRs including one rejected and one superseded |
 
-Still to come: the front end and its generated client, consumer-driven contract
-tests, coverage and mutation thresholds, the pre-push gate, issue forms, the
-workflow commands, and evals.
+Still to come: consumer-driven contract tests, coverage and mutation thresholds,
+formatting and lint gates, the pre-push hook, issue forms, the workflow commands,
+CI, and evals.
+
+## Documentation
+
+`docs/README.md` is the map: which document answers which question, and which
+three things deliberately have no document because they have an executable
+equivalent.
+
+The rule worth stealing is in `docs/adr/README.md`. **An ADR must record what was
+rejected and why.** A set of ADRs where every status is `Accepted` is not
+documentation, it is a journal: it tells you what happened and not what was
+decided, so the option somebody rejected for a good reason gets proposed again
+next quarter by somebody who had no way to know.
+
+ADRs here are immutable. [0003](docs/adr/0003-wire-types-share-domain-names.md)
+was wrong and is still there, marked superseded by
+[0006](docs/adr/0006-prefix-generated-wire-types.md), because the record of having
+believed it is part of the record.
+[0004](docs/adr/0004-a-shared-types-package.md) is an entire ADR whose status is
+`Rejected`, kept because "why don't we just publish a shared types package" is
+asked about twice a year.
 
 ## Running it
 
 ```bash
-cd backend
-./mvnw test            # unit tests plus the architecture rules
-./mvnw spring-boot:run # http://localhost:8080
+cd backend && ./mvnw test    # unit tests plus the architecture rules
+cd frontend && npm run gen   # regenerate the client types from the spec
+npm test                     # component tests
+npm run typecheck            # the spec's shape, checked against the code using it
 ```
