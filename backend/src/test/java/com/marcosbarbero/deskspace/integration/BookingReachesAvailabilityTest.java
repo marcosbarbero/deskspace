@@ -72,7 +72,7 @@ class BookingReachesAvailabilityTest {
 	}
 
 	private boolean availabilityOf(java.util.UUID deskId) {
-		List<DeskAvailability> desks = this.desksOnDate.on(Fixtures.TODAY);
+		List<DeskAvailability> desks = this.desksOnDate.on(Fixtures.TODAY, null);
 		return desks.stream().filter((desk) -> desk.deskId().equals(deskId)).findFirst().orElseThrow().available();
 	}
 

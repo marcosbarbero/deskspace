@@ -80,6 +80,40 @@ describe('DeskBoard', () => {
     expect(booking.method).toBe('POST');
   });
 
+  it('offers a zone filter and re-queries when one is chosen', async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse([A01, B01]))
+      .mockResolvedValueOnce(jsonResponse([A01]));
+
+    render(<DeskBoard date={DATE} bookedBy="ada@example.com" />);
+    await screen.findByText('A-01');
+
+    await userEvent.selectOptions(screen.getByLabelText('Zone'), 'quiet');
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    const second = fetchMock.mock.calls[1]?.[0] as Request;
+    expect(second.url).toContain('zone=quiet');
+    expect(second.url).toContain(`date=${DATE}`);
+  });
+
+  it('drops the zone from the query when the filter is cleared', async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse([A01, B01]))
+      .mockResolvedValueOnce(jsonResponse([A01]))
+      .mockResolvedValueOnce(jsonResponse([A01, B01]));
+
+    render(<DeskBoard date={DATE} bookedBy="ada@example.com" />);
+    await screen.findByText('A-01');
+    await userEvent.selectOptions(screen.getByLabelText('Zone'), 'quiet');
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+
+    await userEvent.selectOptions(screen.getByLabelText('Zone'), '');
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    const third = fetchMock.mock.calls[2]?.[0] as Request;
+    expect(third.url).not.toContain('zone');
+  });
+
   it('shows the problem title when a booking conflicts', async () => {
     fetchMock
       .mockResolvedValueOnce(jsonResponse([A01]))

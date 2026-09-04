@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
-import { api } from '../../api/client';
+import { api, type Zone } from '../../api/client';
 
+import { ZoneFilter } from './ZoneFilter';
 import { useDesks } from './useDesks';
 
 type Props = {
@@ -10,7 +11,8 @@ type Props = {
 };
 
 export function DeskBoard({ date, bookedBy }: Props) {
-  const { desks, loading, error, reload } = useDesks(date);
+  const [zone, setZone] = useState<Zone | undefined>(undefined);
+  const { desks, loading, error, reload } = useDesks(date, zone);
   const [conflict, setConflict] = useState<string | null>(null);
 
   async function book(deskId: string) {
@@ -25,16 +27,12 @@ export function DeskBoard({ date, bookedBy }: Props) {
     reload();
   }
 
-  if (loading) {
-    return <p role="status">Loading desks</p>;
-  }
-  if (error) {
-    return <p role="alert">{error}</p>;
-  }
-
   return (
     <section aria-label={`Desks on ${date}`}>
+      <ZoneFilter zone={zone} onChange={setZone} />
       {conflict && <p role="alert">{conflict}</p>}
+      {loading && <p role="status">Loading desks</p>}
+      {error && <p role="alert">{error}</p>}
       <ul>
         {desks.map((desk) => (
           <li key={desk.id}>

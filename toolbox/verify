@@ -31,12 +31,31 @@ step() {
   fi
 }
 
-# The generated client is committed, so it can go stale. Regenerating must
-# produce no diff: a spec change that nobody regenerated is a spec change the
-# front end has not seen.
+# The generated client is committed, so it can go stale. Regenerating must be a
+# no-op: a spec change nobody regenerated is a spec change the front end has not
+# seen.
+#
+# Compared against a snapshot rather than against HEAD. Diffing against HEAD
+# asks "has this file changed since the last commit", which is a different and
+# much less useful question: it fails on a spec change that was correctly
+# regenerated but not yet committed, which is every spec change while you are
+# still working on it.
 spec_is_current() {
-  ( cd frontend && npm run --silent gen ) || return 1
-  git diff --quiet -- frontend/src/api/schema.d.ts
+  local generated=frontend/src/api/schema.d.ts
+  local snapshot
+  snapshot=$(mktemp)
+  cp "$generated" "$snapshot"
+  if ! ( cd frontend && npm run --silent gen ); then
+    rm -f "$snapshot"
+    return 1
+  fi
+  if ! diff -q "$snapshot" "$generated" >/dev/null; then
+    echo "regenerating ${generated} changed it: the committed client does not match api/openapi.yaml"
+    diff "$snapshot" "$generated" | head -20
+    rm -f "$snapshot"
+    return 1
+  fi
+  rm -f "$snapshot"
 }
 
 # The registries are what make everything else findable, and they drift in

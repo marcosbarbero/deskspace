@@ -28,6 +28,14 @@ paths:
           schema:
             type: string
             format: date
+        - name: zone
+          in: query
+          required: false
+          description: >-
+            Limit the answer to one zone. Absent means every zone, which is what
+            every client sent before this parameter existed.
+          schema:
+            $ref: '#/components/schemas/Zone'
       responses:
         '200':
           description: Every desk, with availability for that date.

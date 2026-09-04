@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * Failures that belong to no slice: a body that did not satisfy the schema the spec
@@ -18,6 +19,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 public class ValidationProblemAdvice {
+
+	/**
+	 * A query parameter that is not one of the values the spec declares. Spring rejects
+	 * it before any controller runs, and without this the client gets a bare 400 with no
+	 * body, which the contract says cannot happen: every error response in this service
+	 * is an ApiProblem.
+	 */
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	ResponseEntity<ApiProblem> unknownParameterValue(MethodArgumentTypeMismatchException ex) {
+		return Problems.of(HttpStatus.BAD_REQUEST, "Invalid request",
+				"'%s' is not a value this endpoint accepts for %s".formatted(ex.getValue(), ex.getName()));
+	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	ResponseEntity<ApiProblem> invalidBody(MethodArgumentNotValidException ex) {

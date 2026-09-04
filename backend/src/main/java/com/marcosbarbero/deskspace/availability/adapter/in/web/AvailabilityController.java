@@ -22,8 +22,10 @@ public class AvailabilityController implements DesksApi {
 	}
 
 	@Override
-	public ResponseEntity<List<ApiDesk>> listDesks(LocalDate date) {
-		return ResponseEntity.ok(this.desksOnDate.on(date).stream().map(AvailabilityController::toApi).toList());
+	public ResponseEntity<List<ApiDesk>> listDesks(LocalDate date, ApiZone zone) {
+		String wanted = (zone != null) ? zone.getValue() : null;
+		return ResponseEntity
+			.ok(this.desksOnDate.on(date, wanted).stream().map(AvailabilityController::toApi).toList());
 	}
 
 	private static ApiDesk toApi(DeskAvailability availability) {

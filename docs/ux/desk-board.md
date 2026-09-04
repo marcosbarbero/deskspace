@@ -17,6 +17,7 @@ the ones a user hits on their worst day.
 | **conflict on booking** | the API's problem title, in place, list refreshed | step 5: she must be able to pick another without losing the date |
 | **request failed** | the API's problem title | never a generic message; the API promised a title, so use it |
 | **taken desk** | marked, no button | a disabled button invites a click that cannot work |
+| **a zone with nothing in it** | the filter, and an empty list | the filter must survive every state, or the only way back is a reload |
 
 ## Rules
 
@@ -27,6 +28,10 @@ the ones a user hits on their worst day.
 - **A conflict does not clear the screen.** It is an in-place message plus a
   refreshed list.
 - **Booked desks stay visible.** The list is a map of the room, not a menu.
+- **The zone filter asks the API, it does not hide rows.** The server is the only
+  thing that knows the whole room, and a client-side filter goes quietly wrong
+  the first time the list is paged or capped. "Every zone" is an absent
+  parameter, not a fourth zone.
 
 ## Accessibility
 
