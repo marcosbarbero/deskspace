@@ -30,6 +30,10 @@ public class BookingRepository {
 				.toList();
 	}
 
+	public void deleteAll() {
+		bookings.clear();
+	}
+
 	public boolean isTaken(UUID deskId, LocalDate date) {
 		return confirmedOn(date).stream().anyMatch(b -> b.deskId().equals(deskId));
 	}

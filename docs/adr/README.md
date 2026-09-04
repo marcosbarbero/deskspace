@@ -41,6 +41,7 @@ Correcting a typo is fine. Rewriting the reasoning is not.
 | [0004](0004-a-shared-types-package.md) | A shared TypeScript/Java types package | **Rejected** |
 | [0005](0005-in-memory-persistence.md) | In-memory persistence for the reference implementation | Accepted |
 | [0006](0006-prefix-generated-wire-types.md) | Prefix generated wire types with `Api` | Accepted |
+| [0007](0007-contract-tests-alongside-the-spec.md) | Consumer-driven contract tests alongside the spec | Accepted |
 
 ## Template
 

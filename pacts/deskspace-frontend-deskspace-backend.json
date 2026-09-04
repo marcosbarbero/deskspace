@@ -1,0 +1,170 @@
+{
+  "consumer": {
+    "name": "deskspace-frontend"
+  },
+  "interactions": [
+    {
+      "description": "a booking for a desk that is taken",
+      "providerStates": [
+        {
+          "name": "desk A-01 is already booked on 2026-03-02"
+        }
+      ],
+      "request": {
+        "body": {
+          "bookedBy": "ada@example.com",
+          "date": "2026-03-02",
+          "deskId": "11111111-0000-0000-0000-000000000001"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.bookedBy": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.deskId": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/api/bookings"
+      },
+      "response": {
+        "body": {
+          "status": 409,
+          "title": "Desk already booked"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.status": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.title": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 409
+      }
+    },
+    {
+      "description": "a request for desks on a date",
+      "providerStates": [
+        {
+          "name": "desk A-01 exists and is free on 2026-03-02"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/api/desks",
+        "query": {
+          "date": [
+            "2026-03-02"
+          ]
+        }
+      },
+      "response": {
+        "body": [
+          {
+            "available": true,
+            "id": "11111111-0000-0000-0000-000000000001",
+            "label": "A-01",
+            "zone": "quiet"
+          }
+        ],
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ]
+            },
+            "$[*].available": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+                }
+              ]
+            },
+            "$[*].label": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$[*].zone": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 200
+      }
+    }
+  ],
+  "metadata": {
+    "pact-js": {
+      "version": "17.1.3"
+    },
+    "pactRust": {
+      "ffi": "0.5.6",
+      "models": "1.3.14"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "deskspace-backend"
+  }
+}

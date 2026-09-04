@@ -50,6 +50,16 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <!--
+      Verifies pacts/ against this running service. The consumer declares what it
+      depends on; this proves the provider still delivers it.
+    -->
+    <dependency>
+      <groupId>au.com.dius.pact.provider</groupId>
+      <artifactId>junit5spring</artifactId>
+      <version>4.6.14</version>
+      <scope>test</scope>
+    </dependency>
     <!-- Package boundaries as a failing test rather than as a paragraph. -->
     <dependency>
       <groupId>com.tngtech.archunit</groupId>

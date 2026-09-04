@@ -25,11 +25,7 @@ public class BookingService {
 
 	private final Supplier<UUID> ids;
 
-	public BookingService(BookingRepository repository, DeskCatalog desks, Clock clock) {
-		this(repository, desks, clock, UUID::randomUUID);
-	}
-
-	BookingService(BookingRepository repository, DeskCatalog desks, Clock clock, Supplier<UUID> ids) {
+	public BookingService(BookingRepository repository, DeskCatalog desks, Clock clock, Supplier<UUID> ids) {
 		this.repository = repository;
 		this.desks = desks;
 		this.clock = clock;
