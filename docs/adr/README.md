@@ -45,6 +45,7 @@ Correcting a typo is fine. Rewriting the reasoning is not.
 | [0008](0008-ports-and-adapters-within-each-slice.md) | Ports and adapters within each slice | Accepted |
 | [0009](0009-events-between-slices.md) | Slices talk by events; availability is a read model | Accepted |
 | [0010](0010-postgres-behind-a-profile.md) | Postgres behind a profile, and the rule enforced twice | Accepted |
+| [0011](0011-an-outbox-for-events.md) | An outbox, so an event is as durable as the change that caused it | Accepted |
 
 ## Template
 

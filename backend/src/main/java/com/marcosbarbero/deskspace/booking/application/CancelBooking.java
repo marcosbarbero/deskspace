@@ -10,6 +10,7 @@ import com.marcosbarbero.deskspace.booking.domain.event.BookingCancelled;
 import com.marcosbarbero.deskspace.shared.event.DomainEvents;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CancelBooking {
@@ -33,6 +34,7 @@ public class CancelBooking {
 	 * received two cancellations for one booking would have to decide what that meant,
 	 * and there is no useful answer.
 	 */
+	@Transactional
 	public void cancel(UUID bookingId) {
 		Booking booking = this.bookings.byId(bookingId).orElseThrow(() -> new UnknownBookingException(bookingId));
 		if (booking.isCancelled()) {

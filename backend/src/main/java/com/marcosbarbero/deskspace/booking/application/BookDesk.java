@@ -15,6 +15,7 @@ import com.marcosbarbero.deskspace.booking.domain.event.DeskBooked;
 import com.marcosbarbero.deskspace.shared.event.DomainEvents;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Taking a desk for a date.
@@ -44,6 +45,7 @@ public class BookDesk {
 		this.ids = ids;
 	}
 
+	@Transactional
 	public Booking book(UUID deskId, LocalDate date, String bookedBy) {
 		if (!this.desks.exists(deskId)) {
 			throw new UnknownDeskException(deskId);
