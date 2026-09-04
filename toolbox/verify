@@ -86,7 +86,7 @@ step "frontend lint"                                        npm --prefix fronten
 step "frontend tests, including the consumer contract"      npm --prefix frontend run --silent test
 
 if [ "$DATABASE" = "1" ]; then
-  step "backend  against a real Postgres" ./backend/mvnw -q -B -f backend/pom.xml -Pdatabase test
+  step "backend  against a real Postgres" ./backend/mvnw -q -B -f backend/pom.xml -Pdatabase verify
 else
   printf '%s\n' "${DIM}skip database (toolbox/verify --database needs Docker)${RST}"
 fi

@@ -30,6 +30,14 @@
     <!-- Managed by spring-boot-dependencies; named here because the individual
          testcontainers modules are not in its managed dependency list. -->
     <testcontainers.version>2.0.5</testcontainers.version>
+    <!--
+      What coverage does not count. Generated code always: it is not written
+      here. JdbcBookings only in the default build, because the suite that
+      exercises it needs Docker and the default build does not run it. The
+      database profile drops that exclusion, so the adapter is measured by the
+      run that can actually cover it.
+    -->
+    <jacoco.excludes>com/marcosbarbero/deskspace/booking/adapter/out/persistence/JdbcBookings.class</jacoco.excludes>
   </properties>
 
   <dependencies>
@@ -204,6 +212,7 @@
         <configuration>
           <excludes>
             <exclude>com/marcosbarbero/deskspace/api/**</exclude>
+            <exclude>${jacoco.excludes}</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -285,6 +294,11 @@
     <!-- The database tests, opted into: ./mvnw -Pdatabase verify -->
     <profile>
       <id>database</id>
+      <properties>
+        <!-- This run covers the JDBC adapter, so it is measured like everything
+             else. Nothing is excluded twice. -->
+        <jacoco.excludes>com/marcosbarbero/deskspace/api/**</jacoco.excludes>
+      </properties>
       <build>
         <plugins>
           <plugin>
