@@ -38,8 +38,9 @@ jobs:
 
       # Hooks are not cloned, so nothing local ran before this. This is the only
       # gate that is the same for every clone and every contributor.
-      - name: toolbox/verify --mutation
-        run: toolbox/verify --mutation
+      # CI has Docker, so it runs the database tests the local default skips.
+      - name: toolbox/verify --all
+        run: toolbox/verify --all
 
       - name: Mutation survivors, if any
         if: failure()

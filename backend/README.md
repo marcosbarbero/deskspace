@@ -6,7 +6,9 @@ Spring Boot 4.1, Java 21. The API described by [`api/openapi.yaml`](../api/opena
 ./mvnw test                  # unit tests, architecture rules, the seam, contract verification
 ./mvnw verify                # the above plus format, checkstyle, coverage
 ./mvnw -Pmutation verify     # plus the mutation score
-./mvnw spring-boot:run       # http://localhost:8080
+./mvnw -Pdatabase test       # plus the tests against a real Postgres (needs Docker)
+./mvnw spring-boot:run       # http://localhost:8080, no database
+./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres
 ```
 
 Usually you want `toolbox/verify` from the repository root instead.
@@ -61,6 +63,26 @@ drift into the past.
 **The projection is idempotent and tested for it**, even though in process an
 event arrives once. At-least-once delivery is what a broker gives you, and that
 property should be proven before the day it matters.
+
+## Persistence
+
+Two adapters behind one port, chosen by profile
+([ADR 0010](../docs/adr/0010-postgres-behind-a-profile.md)). No profile means
+`InMemoryBookings` and no Docker; the `postgres` profile means `JdbcBookings`
+and Flyway migrations in `src/main/resources/db/migration`.
+
+The application layer cannot tell which is behind it, and that is the claim the
+whole arrangement makes. `JdbcBookingsTest` is where it is either true or not.
+
+**The uniqueness rule is stated twice on purpose.** `BookDesk` checks before
+writing, which is a check-then-act and therefore a race; a partial unique index
+is what holds when two requests arrive together. The adapter translates the
+duplicate-key violation into the same `DeskAlreadyBookedException` the service
+raises, so the API answers 409 either way rather than 500.
+
+The index is partial, `where status = 'CONFIRMED'`, because a plain constraint on
+desk and day would make cancelling and rebooking the same desk on the same day
+impossible.
 
 ## Where a test belongs
 
