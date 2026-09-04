@@ -130,6 +130,8 @@ export interface operations {
             query: {
                 /** @description The day to check, in the workspace's local calendar. */
                 date: string;
+                /** @description Limit the answer to one zone. Absent means every zone, which is what every client sent before this parameter existed. */
+                zone?: components["schemas"]["Zone"];
             };
             header?: never;
             path?: never;

@@ -30,9 +30,18 @@ public class DesksOnDate {
 		this.occupied = occupied;
 	}
 
-	public List<DeskAvailability> on(LocalDate date) {
+	/**
+	 * @param zone limit the answer to one zone, or null for every zone. Null rather than
+	 * an empty string on purpose: "no filter" and "a filter matching nothing" are
+	 * different answers, and a caller must be able to say which it meant.
+	 */
+	public List<DeskAvailability> on(LocalDate date, String zone) {
 		Set<UUID> taken = this.occupied.on(date);
-		return this.desks.all().stream().map((desk) -> DeskAvailability.of(desk, !taken.contains(desk.id()))).toList();
+		return this.desks.all()
+			.stream()
+			.filter((desk) -> zone == null || desk.zone().equals(zone))
+			.map((desk) -> DeskAvailability.of(desk, !taken.contains(desk.id())))
+			.toList();
 	}
 
 }

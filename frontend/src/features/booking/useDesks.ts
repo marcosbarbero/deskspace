@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { api, type Desk } from '../../api/client';
+import { api, type Desk, type Zone } from '../../api/client';
 
 type State = {
   desks: Desk[];
@@ -11,17 +11,18 @@ type State = {
 const INITIAL: State = { desks: [], loading: true, error: null };
 
 /**
- * Desks for one date.
+ * Desks for one date, optionally limited to one zone.
+ *
+ * The zone goes to the API rather than filtering rows already on screen. The
+ * server is the only thing that knows the whole room, and a client-side filter
+ * would quietly become wrong the moment the list is paged or capped.
  *
  * The fetch lives inside the effect and nothing sets state synchronously while
  * the effect body runs, which is what stops the cascading re-render the React
- * lint rule warns about. Reloading bumps a counter rather than calling the
- * fetch directly, so there is exactly one place that talks to the API.
- *
- * Errors surface the API's own problem title, never a message invented here:
- * see docs/ux/desk-board.md.
+ * lint rule warns about. Errors surface the API's own problem title, never one
+ * invented here: see docs/ux/desk-board.md.
  */
-export function useDesks(date: string) {
+export function useDesks(date: string, zone?: Zone) {
   const [state, setState] = useState<State>(INITIAL);
   const [reloads, setReloads] = useState(0);
 
@@ -29,7 +30,9 @@ export function useDesks(date: string) {
     let cancelled = false;
 
     void (async () => {
-      const { data, error } = await api.GET('/api/desks', { params: { query: { date } } });
+      const { data, error } = await api.GET('/api/desks', {
+        params: { query: zone ? { date, zone } : { date } },
+      });
       if (cancelled) {
         return;
       }
@@ -41,7 +44,7 @@ export function useDesks(date: string) {
     return () => {
       cancelled = true;
     };
-  }, [date, reloads]);
+  }, [date, zone, reloads]);
 
   const reload = useCallback(() => setReloads((n) => n + 1), []);
 

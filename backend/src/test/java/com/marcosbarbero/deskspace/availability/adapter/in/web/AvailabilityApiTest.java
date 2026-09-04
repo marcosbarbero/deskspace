@@ -9,11 +9,15 @@ import com.marcosbarbero.deskspace.availability.application.DesksOnDate;
 import com.marcosbarbero.deskspace.availability.application.port.out.DeskDirectory;
 import com.marcosbarbero.deskspace.availability.domain.DeskSummary;
 import com.marcosbarbero.deskspace.booking.domain.event.DeskBooked;
+import com.marcosbarbero.deskspace.shared.adapter.in.web.ApiZoneConverter;
+import com.marcosbarbero.deskspace.shared.adapter.in.web.ValidationProblemAdvice;
 import com.marcosbarbero.deskspace.support.Fixtures;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.format.support.DefaultFormattingConversionService;
+import org.springframework.format.support.FormattingConversionService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -35,7 +39,15 @@ class AvailabilityApiTest {
 		this.occupied = new InMemoryOccupiedDesks();
 		DeskDirectory desks = () -> ROOM;
 		this.mvc = MockMvcBuilders.standaloneSetup(new AvailabilityController(new DesksOnDate(desks, this.occupied)))
+			.setControllerAdvice(new ValidationProblemAdvice())
+			.setConversionService(conversionService())
 			.build();
+	}
+
+	private static FormattingConversionService conversionService() {
+		FormattingConversionService service = new DefaultFormattingConversionService();
+		service.addConverter(new ApiZoneConverter());
+		return service;
 	}
 
 	@Test
@@ -46,6 +58,28 @@ class AvailabilityApiTest {
 			.andExpect(jsonPath("$[0].label").value("A-01"))
 			.andExpect(jsonPath("$[0].zone").value("quiet"))
 			.andExpect(jsonPath("$[0].available").value(true));
+	}
+
+	@Test
+	void filters_by_zone() throws Exception {
+		this.mvc.perform(get("/api/desks").param("date", Fixtures.TODAY.toString()).param("zone", "quiet"))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.length()").value(1))
+			.andExpect(jsonPath("$[0].label").value("A-01"));
+	}
+
+	@Test
+	void no_zone_returns_every_desk() throws Exception {
+		this.mvc.perform(get("/api/desks").param("date", Fixtures.TODAY.toString()))
+			.andExpect(jsonPath("$.length()").value(2));
+	}
+
+	@Test
+	void an_unknown_zone_is_refused_with_a_problem() throws Exception {
+		this.mvc.perform(get("/api/desks").param("date", Fixtures.TODAY.toString()).param("zone", "library"))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.title").value("Invalid request"))
+			.andExpect(jsonPath("$.status").value(400));
 	}
 
 	@Test
