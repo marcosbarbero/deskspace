@@ -1,0 +1,84 @@
+name: Implementable change
+description: A change an agent can work end to end. The form is the gate.
+title: "[change] "
+labels: ["change"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every field below is validated by `.claude/tools/issue_context.py` before
+        any work starts. A ticket missing one of them is refused rather than
+        guessed at, because a competent implementation of an ambiguous ticket is
+        the most expensive thing this repository can produce.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What is broken or missing today, and why it matters. No solutions here.
+      placeholder: Members cannot say why they cancelled, so operations cannot tell a room problem from a plan change.
+    validations: { required: true }
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: One sentence. What is true when this is done.
+      placeholder: A cancellation carries an optional reason, and the reason is visible to operations.
+    validations: { required: true }
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Requirements
+      description: >-
+        Numbered. This is the specification: what the system must do. One
+        behaviour per line, no implementation.
+      value: |
+        1. 
+        2. 
+    validations: { required: true }
+
+  - type: textarea
+    id: scenarios
+    attributes:
+      label: Test scenarios
+      description: >-
+        Gherkin, at the level a user feels. This is the verification. There must
+        be at least as many scenarios as requirements, and each requirement must
+        be covered by one.
+      value: |
+        Scenario: 
+          Given 
+          When 
+          Then 
+    validations: { required: true }
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: What must not change. Existing behaviour, response shapes, thresholds.
+    validations: { required: false }
+
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Risk tier
+      description: >-
+        Tier 3 is planned by an agent and implemented by a human. Choosing it is
+        not an admission of anything; it is the correct answer for auth, money,
+        data migration, and anything a customer cannot undo.
+      options:
+        - "tier: 1 — reversible, contained, no data change"
+        - "tier: 2 — touches the contract or crosses the BE/FE seam"
+        - "tier: 3 — auth, data migration, or irreversible for a user"
+    validations: { required: true }
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: The slice this belongs to, so the brief can inline it. See `.claude/tools/arch_map.py list`.
+      options: [desk, booking, availability, shared, frontend-booking, frontend-api, spec]
+    validations: { required: true }

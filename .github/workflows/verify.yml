@@ -1,0 +1,56 @@
+# CI runs ./verify. So does the pre-push hook. So do you.
+#
+# Duplicating the steps here would create a second definition of "green", and
+# the two would drift the first time a gate was added to one of them.
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      # Hooks are not cloned, so nothing local ran before this. This is the only
+      # gate that is the same for every clone and every contributor.
+      - name: ./verify --mutation
+        run: ./verify --mutation
+
+      - name: Mutation survivors, if any
+        if: failure()
+        run: .claude/tools/mutation_survivors.py || true
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: reports
+          path: |
+            backend/target/site/jacoco/
+            backend/target/pit-reports/
+            backend/target/surefire-reports/
+          retention-days: 7

@@ -1,0 +1,41 @@
+{
+  "slices": {
+    "desk": {
+      "responsibility": "The desks that physically exist. Knows nothing about who booked what.",
+      "paths": ["backend/src/main/java/com/marcosbarbero/deskspace/desk"],
+      "owns": ["Desk", "Zone", "DeskCatalog"],
+      "may_depend_on": []
+    },
+    "booking": {
+      "responsibility": "Booking rules: who may take which desk on which date, and cancellation.",
+      "paths": ["backend/src/main/java/com/marcosbarbero/deskspace/booking"],
+      "owns": ["Booking", "BookingStatus", "BookingRepository", "BookingService", "BookingController"],
+      "may_depend_on": ["desk"]
+    },
+    "availability": {
+      "responsibility": "The only place allowed to know about desks and bookings at once. Answers 'is this desk free'.",
+      "paths": ["backend/src/main/java/com/marcosbarbero/deskspace/availability"],
+      "owns": ["AvailabilityController"],
+      "may_depend_on": ["desk", "booking"]
+    },
+    "shared": {
+      "responsibility": "Cross-cutting configuration only. No domain content, ever.",
+      "paths": ["backend/src/main/java/com/marcosbarbero/deskspace/shared"],
+      "owns": ["DeterminismConfiguration", "ProblemAdvice"],
+      "may_depend_on": ["desk", "booking"]
+    },
+    "frontend-booking": {
+      "responsibility": "The desk board: the one screen. States are specified in docs/ux/desk-board.md.",
+      "paths": ["frontend/src/features/booking"],
+      "owns": ["DeskBoard", "useDesks"],
+      "may_depend_on": ["frontend-api"]
+    },
+    "frontend-api": {
+      "responsibility": "The generated client and the types that come from the contract. Nothing hand-written.",
+      "paths": ["frontend/src/api"],
+      "owns": ["client", "schema"],
+      "may_depend_on": []
+    }
+  },
+  "enforced_by": "backend/src/test/java/com/marcosbarbero/deskspace/ArchitectureRulesTest.java"
+}

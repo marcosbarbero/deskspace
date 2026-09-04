@@ -38,6 +38,12 @@ spec_is_current() {
   git diff --quiet -- frontend/src/api/schema.d.ts
 }
 
+# The registries are what make everything else findable, and they drift in
+# silence: nothing breaks when a map goes stale, somebody just gets sent to the
+# wrong place months later.
+step "registry  every tool is discoverable"                 .claude/tools/tool_mapping.py check
+step "registry  the architecture map matches the tree"      .claude/tools/arch_map.py check
+step "registry  lexicon entries are well formed"            .claude/tools/lexicon.py check
 step "backend  format, lint, architecture, tests, coverage" ./backend/mvnw -q -B -f backend/pom.xml verify
 step "frontend types are current with the spec"             spec_is_current
 step "frontend typecheck"                                   npm --prefix frontend run --silent typecheck
