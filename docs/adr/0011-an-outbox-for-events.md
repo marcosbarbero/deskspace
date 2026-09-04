@@ -68,5 +68,6 @@ Events are stored with their class name, so renaming an event class strands the
 rows already written. That is a real constraint on refactoring and the reason
 `booking.domain.event` is published language rather than ordinary code.
 
-The outbox grows forever. Nothing prunes it yet, which is fine at this size and
-is the next thing this table needs.
+The outbox grows forever unless something removes delivered rows, and a queue
+nobody watches stops draining without anybody being told. Both are addressed in
+[0012](0012-operating-the-outbox.md).

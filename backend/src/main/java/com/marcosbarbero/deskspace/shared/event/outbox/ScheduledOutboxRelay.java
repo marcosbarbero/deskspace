@@ -17,13 +17,25 @@ public class ScheduledOutboxRelay {
 
 	private final OutboxRelay relay;
 
-	public ScheduledOutboxRelay(OutboxRelay relay) {
+	private final OutboxPruner pruner;
+
+	public ScheduledOutboxRelay(OutboxRelay relay, OutboxPruner pruner) {
 		this.relay = relay;
+		this.pruner = pruner;
 	}
 
 	@Scheduled(fixedDelayString = "${deskspace.outbox.interval:PT1S}")
-	void run() {
+	void deliver() {
 		this.relay.deliver();
+	}
+
+	/**
+	 * Far less often than delivery. Pruning is housekeeping and a delay in it costs disk;
+	 * a delay in delivery costs correctness.
+	 */
+	@Scheduled(fixedDelayString = "${deskspace.outbox.prune-interval:PT1H}")
+	void prune() {
+		this.pruner.prune();
 	}
 
 }

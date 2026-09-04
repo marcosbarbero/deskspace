@@ -1,5 +1,6 @@
 package com.marcosbarbero.deskspace.shared.event.outbox;
 
+import java.time.Clock;
 import java.util.List;
 
 import tools.jackson.databind.ObjectMapper;
@@ -33,10 +34,13 @@ public class OutboxRelay {
 
 	private final ObjectMapper json;
 
-	public OutboxRelay(Outbox outbox, ApplicationEventPublisher publisher, ObjectMapper json) {
+	private final Clock clock;
+
+	public OutboxRelay(Outbox outbox, ApplicationEventPublisher publisher, ObjectMapper json, Clock clock) {
 		this.outbox = outbox;
 		this.publisher = publisher;
 		this.json = json;
+		this.clock = clock;
 	}
 
 	/**
@@ -47,7 +51,7 @@ public class OutboxRelay {
 		List<StoredEvent> waiting = this.outbox.unpublished(BATCH);
 		for (StoredEvent stored : waiting) {
 			this.publisher.publishEvent(read(stored));
-			this.outbox.markPublished(stored.id());
+			this.outbox.markPublished(stored.id(), this.clock.instant());
 		}
 		return waiting.size();
 	}
