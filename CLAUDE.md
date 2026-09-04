@@ -25,16 +25,16 @@ API starts by editing the spec.
 Three registries, three questions. Look things up rather than searching:
 
 ```bash
-.claude/tools/tool_mapping.py list           # what tools exist
-.claude/tools/arch_map.py get booking        # where the code lives, and what may depend on it
-.claude/tools/lexicon.py search "checkstyle" # how we solved this before
+toolbox/tool_mapping.py list           # what tools exist
+toolbox/arch_map.py get booking        # where the code lives, and what may depend on it
+toolbox/lexicon.py search "checkstyle" # how we solved this before
 ```
 
 ## Definition of done
 
 ```bash
-./verify              # format, lint, architecture, tests, coverage, contract, spec drift
-./verify --mutation   # the above plus the mutation score
+toolbox/verify              # format, lint, architecture, tests, coverage, contract, spec drift
+toolbox/verify --mutation   # the above plus the mutation score
 ```
 
 Green means done. There is no second opinion, and CI runs the same script.
@@ -45,14 +45,14 @@ Green means done. There is no second opinion, and CI runs the same script.
    or `frontend/src` when the branch has no test change. It is a gate, not a
    preference, and it is not negotiable by prompting.
 2. **Never edit a gate to make it pass.** `.githooks/`, `.claude/hooks/`,
-   `ArchitectureRulesTest`, the thresholds in `backend/pom.xml`, and `verify`
+   `ArchitectureRulesTest`, the thresholds in `backend/pom.xml`, and `toolbox/verify`
    are denied. Moving the gate is not passing it.
 3. **Never weaken a test or a threshold** to get green. If a threshold is wrong,
    say so and stop.
 4. **Search the lexicon before deriving.** Add to it before you finish, whenever
    something surprised you.
 5. **A change that touches the wire starts at the spec**, then regenerates both
-   sides. `./verify` fails if the committed client is stale.
+   sides. `toolbox/verify` fails if the committed client is stale.
 6. **Refuse a ticket rather than guessing.** Missing requirements are a defect in
    the ticket, not something to improvise around.
 

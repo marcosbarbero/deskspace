@@ -5,7 +5,7 @@ untested code that has authority is the worst kind. So the gates are tested here
 
 Two suites, and they are different things:
 
-| | what it asks | deterministic | runs in `./verify` |
+| | what it asks | deterministic | runs in `toolbox/verify` |
 |---|---|---|---|
 | `harness` | does the gate say yes and no in the right places | yes | yes |
 | `agent` | does the model do the right thing when the gate says no | no | no, opt in |
@@ -30,7 +30,7 @@ the same commit, and a gate with no case is reported.
 Whether a model refuses an underspecified ticket instead of guessing is a real
 question and not a deterministic one. Those cases live in `cases/tickets/` as
 fixtures a person or a scheduled run can feed to the workflow, with the expected
-behaviour written down. They are not part of `./verify`, because a non-repeatable
+behaviour written down. They are not part of `toolbox/verify`, because a non-repeatable
 check in a blocking gate teaches people to re-run red builds.
 
 The deterministic suite is what protects the deterministic gates. The agent suite

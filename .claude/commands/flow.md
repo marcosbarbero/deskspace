@@ -7,7 +7,7 @@ Implement issue **$ARGUMENTS** end to end.
 
 The prompt is an issue number and nothing else. Everything you need is in this
 repo: the issue carries the requirements and scenarios, `CLAUDE.md` carries the
-conventions, the registries carry the map, and `./verify` carries the definition
+conventions, the registries carry the map, and `toolbox/verify` carries the definition
 of done. If something is missing, that is a defect in the ticket. Say so and stop.
 
 **Deterministic first, agent on failure.** Every step a script can do, a script
@@ -19,7 +19,7 @@ than it feels like.
 ## 1 · Brief (no judgement)
 
 ```bash
-.claude/tools/issue_context.py $ARGUMENTS
+toolbox/issue_context.py $ARGUMENTS
 ```
 
 - **exit 1** → not implementable. Print the reasons and **stop.** Do not repair
@@ -33,8 +33,8 @@ Then look up the area rather than searching for it, and check whether this has
 been solved before:
 
 ```bash
-.claude/tools/arch_map.py get <area from the issue>
-.claude/tools/lexicon.py search "<the thing that looks unfamiliar>"
+toolbox/arch_map.py get <area from the issue>
+toolbox/lexicon.py search "<the thing that looks unfamiliar>"
 git switch -c issue-<number>
 ```
 
@@ -98,7 +98,7 @@ ambiguous requirement, not a stubborn bug.
 ## 6 · Gate
 
 ```bash
-./verify --mutation
+toolbox/verify --mutation
 ```
 
 Green, or you are not done. Never weaken a test or a threshold to get there.
@@ -108,18 +108,18 @@ Green, or you are not done. Never weaken a test or a threshold to get there.
 If anything surprised you, record it before you finish:
 
 ```bash
-.claude/tools/lexicon.py add --key <key> --title "<what to know>" --tags <area>
+toolbox/lexicon.py add --key <key> --title "<what to know>" --tags <area>
 ```
 
-Then push. The pre-push hook runs `./verify` again. There is no bypass, and
+Then push. The pre-push hook runs `toolbox/verify` again. There is no bypass, and
 `--no-verify` is denied.
 
 Draft the pull request body against `.github/PULL_REQUEST_TEMPLATE.md` and open
 it with the tool. `gh pr create` is denied:
 
 ```bash
-.claude/tools/pr.py check  --issue <number> --body-file <draft>
-.claude/tools/pr.py create --issue <number> --body-file <draft>
+toolbox/pr.py check  --issue <number> --body-file <draft>
+toolbox/pr.py create --issue <number> --body-file <draft>
 ```
 
 It refuses a body that does not close an open issue, omits a required section,
@@ -132,7 +132,7 @@ code works; this proves a human can review the intent without reading the diff.
 ## Do not
 
 - Fill in a missing requirement by guessing. Refuse the ticket.
-- Touch `.githooks/`, `.claude/hooks/`, `verify`, `ArchitectureRulesTest`, or a
+- Touch `.githooks/`, `.claude/hooks/`, `toolbox/verify`, `ArchitectureRulesTest`, or a
   threshold. Moving a gate is not passing it.
 - Hand-write anything under `frontend/src/api/schema.d.ts` or `backend/target/`.
 - Implement anything the brief did not ask for.

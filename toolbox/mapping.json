@@ -1,39 +1,39 @@
 {
   "tools": {
     "mutation-survivors": {
-      "path": ".claude/tools/mutation_survivors.py",
+      "path": "toolbox/mutation_survivors.py",
       "summary": "Surviving mutants and where they are, in about 15 lines",
-      "use_when": "after ./verify --mutation, or whenever asked to raise the mutation score",
+      "use_when": "after toolbox/verify --mutation, or whenever asked to raise the mutation score",
       "replaces": "reading backend/target/pit-reports/**.html (multi-MB, ~40k tokens)",
-      "example": ".claude/tools/mutation_survivors.py --limit 10"
+      "example": "toolbox/mutation_survivors.py --limit 10"
     },
     "arch-map": {
-      "path": ".claude/tools/arch_map.py",
+      "path": "toolbox/arch_map.py",
       "summary": "Which slice owns what, and which slice may depend on which",
       "use_when": "before touching code you have not seen, or when deciding where something belongs",
       "replaces": "globbing the source tree and inferring the structure from file names",
-      "example": ".claude/tools/arch_map.py get booking"
+      "example": "toolbox/arch_map.py get booking"
     },
     "lexicon": {
-      "path": ".claude/tools/lexicon.py",
+      "path": "toolbox/lexicon.py",
       "summary": "How a recurring problem was solved here before",
       "use_when": "before deriving anything that feels like it should already be known",
       "replaces": "rediscovering a tool quirk that cost somebody an afternoon",
-      "example": ".claude/tools/lexicon.py search checkstyle"
+      "example": "toolbox/lexicon.py search checkstyle"
     },
     "issue-context": {
-      "path": ".claude/tools/issue_context.py",
+      "path": "toolbox/issue_context.py",
       "summary": "Validates an issue and prints an implementable brief, or refuses it",
       "use_when": "the first step of /work, before any code is read",
       "replaces": "reading an issue and guessing what the missing half meant",
-      "example": ".claude/tools/issue_context.py 42"
+      "example": "toolbox/issue_context.py 42"
     },
     "tool-mapping": {
-      "path": ".claude/tools/tool_mapping.py",
+      "path": "toolbox/tool_mapping.py",
       "summary": "This registry. Lists tools by key so nobody reads the directory",
       "use_when": "you suspect a script already exists for what you are about to do",
       "replaces": "ls .claude/tools and opening each file to find out what it does",
-      "example": ".claude/tools/tool_mapping.py list"
+      "example": "toolbox/tool_mapping.py list"
     },
     "evals": {
       "path": "evals/run.py",
@@ -43,11 +43,18 @@
       "example": "evals/run.py --only test-first"
     },
     "pr": {
-      "path": ".claude/tools/pr.py",
+      "path": "toolbox/pr.py",
       "summary": "Opens a pull request, or refuses one a human could not review",
       "use_when": "the last step of /work. `gh pr create` is denied",
       "replaces": "a reviewer checking by eye that every scenario is covered",
-      "example": ".claude/tools/pr.py check --issue 42 --body-file draft.md"
+      "example": "toolbox/pr.py check --issue 42 --body-file draft.md"
+    },
+    "check-readmes": {
+      "path": "toolbox/check_readmes.py",
+      "summary": "Every navigable directory has a README",
+      "use_when": "after adding a directory; it also runs in toolbox/verify",
+      "replaces": "a reader opening a folder and having to guess what is in it",
+      "example": "toolbox/check_readmes.py"
     }
   }
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Runs the same ./verify that CI runs, before anything leaves this machine.
+# Runs the same toolbox/verify that CI runs, before anything leaves this machine.
 #
 # Enable once per clone:   git config core.hooksPath .githooks
 # Git cannot do this for you: hooks are not cloned.
@@ -10,8 +10,8 @@
 set -uo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-echo "pre-push: running ./verify"
-if ! "$REPO/verify"; then
+echo "pre-push: running toolbox/verify"
+if ! "$REPO/toolbox/verify"; then
   echo
   echo "pre-push blocked. The same script runs in CI, so pushing would not have helped."
   exit 1

@@ -8,7 +8,7 @@ issue rather than of the diff.
 ## Requirements covered
 
 One row per numbered requirement in the issue. Every scenario in the issue must
-appear here: `.claude/tools/pr.py` refuses the pull request otherwise, because
+appear here: `toolbox/pr.py` refuses the pull request otherwise, because
 nobody cross-references four Gherkin blocks against a table at six in the evening.
 
 | # | requirement | scenario | test |
@@ -18,7 +18,7 @@ nobody cross-references four Gherkin blocks against a table at six in the evenin
 ## Evidence
 
 ```
-./verify --mutation
+toolbox/verify --mutation
 ```
 
 Paste the result. Coverage and mutation numbers if they moved.

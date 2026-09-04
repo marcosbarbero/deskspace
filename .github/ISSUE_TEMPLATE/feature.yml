@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Every field below is validated by `.claude/tools/issue_context.py` before
+        Every field below is validated by `toolbox/issue_context.py` before
         any work starts. A ticket missing one of them is refused rather than
         guessed at, because a competent implementation of an ambiguous ticket is
         the most expensive thing this repository can produce.
@@ -79,6 +79,6 @@ body:
     id: area
     attributes:
       label: Area
-      description: The slice this belongs to, so the brief can inline it. See `.claude/tools/arch_map.py list`.
+      description: The slice this belongs to, so the brief can inline it. See `toolbox/arch_map.py list`.
       options: [desk, booking, availability, shared, frontend-booking, frontend-api, spec]
     validations: { required: true }

@@ -41,7 +41,7 @@ def hook_payload(path: str) -> str:
 
 
 def cases() -> list[Case]:
-    ic = [".claude/tools/issue_context.py", "--file"]
+    ic = ["toolbox/issue_context.py", "--file"]
     hook = ["python3", ".claude/hooks/require_test_first.py"]
     return [
         # --- the ticket gate: refusing beats guessing -------------------------
@@ -90,23 +90,23 @@ def cases() -> list[Case]:
 
         # --- registries: drift must fail, not warn ----------------------------
         Case("tool-registry", "passes when every tool is registered",
-             [".claude/tools/tool_mapping.py", "check"], 0, "tool registry ok",
+             ["toolbox/tool_mapping.py", "check"], 0, "tool registry ok",
              why="the clean case, so a failure means drift rather than a broken checker"),
         Case("tool-registry", "fails on an unregistered tool",
-             [".claude/tools/tool_mapping.py", "check"], 1, "undiscoverable",
-             setup=[["cp", ".claude/tools/lexicon.py", ".claude/tools/eval_scratch.py"]],
-             teardown=[["rm", "-f", ".claude/tools/eval_scratch.py"]],
+             ["toolbox/tool_mapping.py", "check"], 1, "undiscoverable",
+             setup=[["cp", "toolbox/lexicon.py", "toolbox/eval_scratch.py"]],
+             teardown=[["rm", "-f", "toolbox/eval_scratch.py"]],
              why="an unregistered tool gets rebuilt by the next person who cannot find it"),
         Case("arch-map", "passes when the map matches the tree",
-             [".claude/tools/arch_map.py", "check"], 0, "architecture map ok",
+             ["toolbox/arch_map.py", "check"], 0, "architecture map ok",
              why="the clean case"),
         Case("arch-map", "fails when a package no slice claims appears",
-             [".claude/tools/arch_map.py", "check"], 1, "no slice claims it",
+             ["toolbox/arch_map.py", "check"], 1, "no slice claims it",
              setup=[["mkdir", "-p", "backend/src/main/java/com/marcosbarbero/deskspace/evalscratch"]],
              teardown=[["rm", "-rf", "backend/src/main/java/com/marcosbarbero/deskspace/evalscratch"]],
              why="a map that disagrees with the tree sends the next agent confidently wrong"),
         Case("lexicon", "passes when entries are well formed",
-             [".claude/tools/lexicon.py", "check"], 0, "lexicon ok",
+             ["toolbox/lexicon.py", "check"], 0, "lexicon ok",
              why="the clean case"),
         # --- the pull request gate --------------------------------------------
         Case("pr", "refuses a body that omits a scenario",
@@ -126,7 +126,7 @@ def cases() -> list[Case]:
              why="the clean case, or the gate gets removed for being unusable"),
 
         Case("lexicon", "finds a seeded lesson by keyword",
-             [".claude/tools/lexicon.py", "search", "checkstyle"], 0, "execution-id",
+             ["toolbox/lexicon.py", "search", "checkstyle"], 0, "execution-id",
              why="a lexicon nobody can search is a directory of files"),
     ]
 

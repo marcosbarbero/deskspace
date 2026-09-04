@@ -4,8 +4,8 @@ How a recurring problem was solved here, so nobody pays for the same lesson
 twice.
 
 ```bash
-.claude/tools/lexicon.py search checkstyle
-.claude/tools/lexicon.py add --key some-key --title "..." --tags build
+toolbox/lexicon.py search checkstyle
+toolbox/lexicon.py add --key some-key --title "..." --tags build
 ```
 
 Every entry here cost somebody real time while this repository was being built.

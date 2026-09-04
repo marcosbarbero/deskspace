@@ -37,16 +37,16 @@ What works today:
 | `ArchitectureRulesTest` | 5 ArchUnit rules: slice isolation, no cycles, no field injection, domain free of wire types |
 | format and lint | `spring-javaformat`, Checkstyle, typed ESLint |
 | coverage / mutation | JaCoCo 85% line, PIT threshold 80 and currently 100% of 32 mutants |
-| `./verify` | the one script that decides whether this repository is green |
-| `.githooks/pre-push`, CI | both run `./verify`, so there is no second opinion |
+| `toolbox/verify` | the one script that decides whether this repository is green |
+| `.githooks/pre-push`, CI | both run `toolbox/verify`, so there is no second opinion |
 | `CLAUDE.md` | 67 lines, loaded every turn, pointing at registries rather than listing things |
 | `.claude/hooks/` | test-first as `exit 2`, per side of the wire; formatting after every edit |
-| `.claude/tools/` | four registries and reports, discovered by key |
-| `.claude/commands/work.md` | `/work gh#42`: issue in, pull request out |
+| `toolbox/` | four registries and reports, discovered by key |
+| `.claude/commands/flow.md` | `/flow gh#42`: issue in, pull request out |
 | `.claude/agents/` | `tech-lead` implements, `reviewer` checks requirements against asserting tests |
 | `.github/ISSUE_TEMPLATE/` | an issue form whose fields a script validates before work starts |
-| `.claude/tools/pr.py` | opens a pull request, or refuses one a human could not review |
-| `evals/` | 21 cases, 12 asserting a refusal, run by `./verify` |
+| `toolbox/pr.py` | opens a pull request, or refuses one a human could not review |
+| `evals/` | 21 cases, 12 asserting a refusal, run by `toolbox/verify` |
 | `docs/` | PRD, journey, feature UX, 7 ADRs including one rejected and one superseded, 7 lexicon entries |
 
 Still to come: a second consumer, to make the case for a Pact broker rather than
@@ -56,20 +56,20 @@ a committed pact file.
 
 ```bash
 git config core.hooksPath .githooks    # once per clone; git cannot do it for you
-./verify              # registries, format, lint, architecture, tests, coverage, contract, spec drift
-./verify --mutation   # the above plus the mutation score
+toolbox/verify              # registries, format, lint, architecture, tests, coverage, contract, spec drift
+toolbox/verify --mutation   # the above plus the mutation score
 ```
 
-`./verify` is the only answer to "is it green". The hook runs it, CI runs it, you
+`toolbox/verify` is the only answer to "is it green". The hook runs it, CI runs it, you
 run it. Two definitions of done drift the moment a gate is added to one of them.
 
 ## What the seam actually buys
 
-The generated TypeScript client is committed **and** checked: `./verify`
+The generated TypeScript client is committed **and** checked: `toolbox/verify`
 regenerates it and fails on a diff, because a spec change nobody regenerated is a
 spec change the front end has not seen.
 
-Rename one field in `api/openapi.yaml` and run `./verify`: three gates fail at
+Rename one field in `api/openapi.yaml` and run `toolbox/verify`: three gates fail at
 once. The backend no longer implements its generated interface, the committed
 client types are stale, and the front end stops typechecking.
 
@@ -103,9 +103,9 @@ build on drift, because an unregistered tool is an undiscoverable tool and a map
 that disagrees with the tree is worse than no map.
 
 ```bash
-.claude/tools/tool_mapping.py list
-.claude/tools/arch_map.py get booking
-.claude/tools/lexicon.py search checkstyle
+toolbox/tool_mapping.py list
+toolbox/arch_map.py get booking
+toolbox/lexicon.py search checkstyle
 ```
 
 ## The gates are tested
@@ -132,7 +132,7 @@ against TypeScript 7.
 ## The workflow
 
 ```
-/work gh#42
+/flow gh#42
 ```
 
 The prompt is an issue number. Everything else is in the repository.
@@ -147,7 +147,7 @@ The prompt is an issue number. Everything else is in the repository.
 4. **Review** — `reviewer`, read-only, requirements against asserting tests only.
 5. **Cycle** — bounded at three rounds, then escalate. A loop that will not
    converge is usually an ambiguous requirement, not a stubborn bug.
-6. **Gate** — `./verify --mutation`.
+6. **Gate** — `toolbox/verify --mutation`.
 
 Issues are filed through a form; the form's fields are validated by a script. A
 template is a suggestion, a gate is not.

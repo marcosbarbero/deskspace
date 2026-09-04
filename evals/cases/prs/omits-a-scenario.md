@@ -13,6 +13,6 @@ A cancellation may now carry a reason.
 ## Evidence
 
 ```
-./verify --mutation
+toolbox/verify --mutation
 green.
 ```

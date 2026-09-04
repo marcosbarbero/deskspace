@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "c=$(jq -r '.tool_input.command // \"\"'); if printf '%s' \"$c\" | grep -qE '(--no-verify|core\\.hooksPath)'; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked. ./verify is the definition of done in this repository and it is not optional. Run ./verify, fix what it reports, and push normally. Moving a gate is not passing it.\"}}'; fi",
+            "command": "c=$(jq -r '.tool_input.command // \"\"'); if printf '%s' \"$c\" | grep -qE '(--no-verify|core\\.hooksPath)'; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked. toolbox/verify is the definition of done in this repository and it is not optional. Run toolbox/verify, fix what it reports, and push normally. Moving a gate is not passing it.\"}}'; fi",
             "timeout": 10,
             "statusMessage": "Checking push flags"
           }
@@ -37,6 +37,29 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/lexicon_recall.py\"",
+            "timeout": 20,
+            "statusMessage": "Recalling prior lessons"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/lexicon_capture.py\"",
+            "timeout": 20
+          }
+        ]
+      }
     ]
   },
   "permissions": {
@@ -46,14 +69,40 @@
       "Edit(./.claude/hooks/**)",
       "Write(./.claude/hooks/**)",
       "Edit(./.claude/settings.json)",
-      "Edit(./verify)",
-      "Write(./verify)",
+      "Edit(toolbox/verify)",
+      "Write(toolbox/verify)",
       "Edit(./backend/src/test/java/com/marcosbarbero/deskspace/ArchitectureRulesTest.java)",
       "Edit(./backend/target/**)",
       "Write(./backend/target/**)",
       "Edit(./frontend/src/api/schema.d.ts)",
       "Write(./frontend/src/api/schema.d.ts)",
       "Bash(gh pr create:*)"
+    ],
+    "allow": [
+      "Bash(toolbox/verify)",
+      "Bash(toolbox/verify --mutation)",
+      "Bash(toolbox/arch_map.py:*)",
+      "Bash(toolbox/lexicon.py:*)",
+      "Bash(toolbox/tool_mapping.py:*)",
+      "Bash(toolbox/mutation_survivors.py:*)",
+      "Bash(toolbox/issue_context.py:*)",
+      "Bash(toolbox/pr.py:*)",
+      "Bash(evals/run.py:*)",
+      "Bash(./backend/mvnw test:*)",
+      "Bash(./backend/mvnw verify:*)",
+      "Bash(./backend/mvnw compile:*)",
+      "Bash(./backend/mvnw spring-javaformat:apply)",
+      "Bash(npm --prefix frontend run:*)",
+      "Bash(npm run:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git switch:*)",
+      "Bash(git push:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh pr view:*)"
     ]
   }
 }

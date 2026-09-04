@@ -15,7 +15,7 @@ operations can read it. Cancellations without a reason behave exactly as before.
 ## Evidence
 
 ```
-./verify --mutation
+toolbox/verify --mutation
 green. 39 tests, 34/34 mutants killed, line coverage 88%
 ```
 

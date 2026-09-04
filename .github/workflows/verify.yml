@@ -1,4 +1,4 @@
-# CI runs ./verify. So does the pre-push hook. So do you.
+# CI runs toolbox/verify. So does the pre-push hook. So do you.
 #
 # Duplicating the steps here would create a second definition of "green", and
 # the two would drift the first time a gate was added to one of them.
@@ -38,12 +38,12 @@ jobs:
 
       # Hooks are not cloned, so nothing local ran before this. This is the only
       # gate that is the same for every clone and every contributor.
-      - name: ./verify --mutation
-        run: ./verify --mutation
+      - name: toolbox/verify --mutation
+        run: toolbox/verify --mutation
 
       - name: Mutation survivors, if any
         if: failure()
-        run: .claude/tools/mutation_survivors.py || true
+        run: toolbox/mutation_survivors.py || true
 
       - uses: actions/upload-artifact@v4
         if: failure()

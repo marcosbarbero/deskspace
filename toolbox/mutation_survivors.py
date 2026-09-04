@@ -9,7 +9,7 @@ The answer was always small. Only the artifact was big.
 
 Deterministic: same report in, same output out, no model involved.
 
-    .claude/tools/mutation_survivors.py [--limit N] [--json] [report.xml]
+    toolbox/mutation_survivors.py [--limit N] [--json] [report.xml]
 """
 from __future__ import annotations
 

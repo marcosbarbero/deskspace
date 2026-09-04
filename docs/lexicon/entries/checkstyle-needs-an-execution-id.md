@@ -9,7 +9,7 @@ Checkstyle's bundled Sun ruleset instead of `src/checkstyle/quality-checkstyle.x
 and reports hundreds of violations nobody asked about.
 
 **Do:** bind the plugin to an execution with an id and an explicit
-`configLocation`, and invoke it through the lifecycle (`./verify`), not by goal.
+`configLocation`, and invoke it through the lifecycle (`toolbox/verify`), not by goal.
 
 **Cost of rediscovering it:** an afternoon spent believing the codebase is
 catastrophically non-compliant.

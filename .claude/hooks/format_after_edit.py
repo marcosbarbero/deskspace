@@ -2,7 +2,7 @@
 """PostToolUse: format what was just edited, so nobody spends attention on it.
 
 Java goes through spring-javaformat, TypeScript through eslint --fix. Both are
-the same tools ./verify checks with, so formatting can never be a surprise at
+the same tools toolbox/verify checks with, so formatting can never be a surprise at
 push time.
 
 Always exits 0. A formatter that can block an edit is a formatter that will be

@@ -15,9 +15,9 @@ import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 MAPPING = Path(__file__).parent / "mapping.json"
-SKIP = {"tool_mapping.py", "hook_io.py", "__init__.py"}
+SKIP = {"tool_mapping.py", "__init__.py"}
 
 
 def load() -> dict:
@@ -49,7 +49,7 @@ def cmd_get(key: str) -> int:
 def cmd_check() -> int:
     tools = load()
     registered = {Path(m["path"]).name for m in tools.values()}
-    on_disk = {p.name for p in (ROOT / ".claude" / "tools").glob("*.py") if p.name not in SKIP}
+    on_disk = {p.name for p in (ROOT / "toolbox").glob("*.py") if p.name not in SKIP}
     problems = []
     for name in sorted(on_disk - registered):
         problems.append(f"{name} exists but is not registered in mapping.json: "

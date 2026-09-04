@@ -10,15 +10,15 @@ something you report rather than reinterpret.
 
 ## Order
 
-1. **Look before deriving.** `.claude/tools/arch_map.py get <slice>` for where
-   things live. `.claude/tools/lexicon.py search <term>` before working out
+1. **Look before deriving.** `toolbox/arch_map.py get <slice>` for where
+   things live. `toolbox/lexicon.py search <term>` before working out
    anything that feels like it should already be known.
 2. **Write the failing test first**, in the slice that owns the behaviour. This
    is enforced: an edit to production source on a branch with no test change on
    that side of the wire is rejected with exit code 2.
 3. **Make it pass**, in the smallest way that is honest. No speculative
    generality, no options nobody asked for.
-4. **Run `./verify`.** Green before you report done.
+4. **Run `toolbox/verify`.** Green before you report done.
 
 ## Where a test belongs
 
@@ -47,6 +47,6 @@ slow test that will be deleted by somebody in a hurry.
 
 ## Report
 
-What you changed, which requirement each change serves, and the `./verify`
+What you changed, which requirement each change serves, and the `toolbox/verify`
 result. If you were blocked by a gate, say which one and why, and do not work
 around it.
