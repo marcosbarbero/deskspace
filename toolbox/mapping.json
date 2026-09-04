@@ -55,6 +55,13 @@
       "use_when": "after adding a directory; it also runs in toolbox/verify",
       "replaces": "a reader opening a folder and having to guess what is in it",
       "example": "toolbox/check_readmes.py"
+    },
+    "check-coverage-exclusions": {
+      "path": "toolbox/check_coverage_exclusions.py",
+      "summary": "Nothing the default suite covers is hidden behind a coverage exclusion",
+      "use_when": "after adding a class that only exists under the postgres profile",
+      "replaces": "noticing months later that a class stopped being measured",
+      "example": "toolbox/check_coverage_exclusions.py"
     }
   }
 }
