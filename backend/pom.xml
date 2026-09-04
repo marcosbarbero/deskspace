@@ -37,7 +37,7 @@
       database profile drops that exclusion, so the adapter is measured by the
       run that can actually cover it.
     -->
-    <jacoco.excludes>com/marcosbarbero/deskspace/booking/adapter/out/persistence/JdbcBookings.class</jacoco.excludes>
+    <jacoco.excludes>com/marcosbarbero/deskspace/booking/adapter/out/persistence/JdbcBookings.class,com/marcosbarbero/deskspace/shared/config/OutboxScheduling.class,com/marcosbarbero/deskspace/shared/event/outbox/JdbcOutbox.class,com/marcosbarbero/deskspace/shared/event/outbox/OutboxDomainEvents.class,com/marcosbarbero/deskspace/shared/event/outbox/ScheduledOutboxRelay.class</jacoco.excludes>
   </properties>
 
   <dependencies>

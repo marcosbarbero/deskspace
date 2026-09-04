@@ -79,7 +79,11 @@ step "registry  every tool is discoverable"                 toolbox/tool_mapping
 step "registry  the architecture map matches the tree"      toolbox/arch_map.py check
 step "registry  lexicon entries are well formed"            toolbox/lexicon.py check
 step "registry  every directory explains itself"            toolbox/check_readmes.py
-step "backend  format, lint, architecture, tests, coverage" ./backend/mvnw -q -B -f backend/pom.xml verify
+step "registry  coverage exclusions are database-only"      toolbox/check_coverage_exclusions.py
+# `clean` is not caution. Coverage reads accumulated exec data, so without it a
+# local run can pass on lines an earlier `-Pdatabase` run executed and this one
+# never did, and CI disagrees on the same commit. Twice, before this line.
+step "backend  format, lint, architecture, tests, coverage" ./backend/mvnw -q -B -f backend/pom.xml clean verify
 step "frontend types are current with the spec"             spec_is_current
 step "frontend typecheck"                                   npm --prefix frontend run --silent typecheck
 step "frontend lint"                                        npm --prefix frontend run --silent lint
